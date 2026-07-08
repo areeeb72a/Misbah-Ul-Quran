@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Misbah-ul-Quran</title>
+
+<!-- ================= PWA ================= -->
+<meta name="theme-color" content="#0E7C66" />
+<meta name="description" content="Misbah-ul-Quran — learn the Qaida the fun way." />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Misbah" />
+
+<!-- ================= FONTS ================= -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Scheherazade+New:wght@400;700&family=Noto+Nastaliq+Urdu:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   CONFIG NOTE: All learning content lives in QAIDA_CONFIG (JS).
+   This CSS section only handles LOOK. Sections below:
+   TOKENS / BASE / MASCOT / SCREENS / CARDS / BUTTONS / ANIM
+   ============================================================ */
+
+/* ---------- TOKENS ---------- */
+:root{
+  --cream:#FFF7E9;
+  --cream-2:#FFEFD4;
+  --emerald:#0E7C66;
+  --emerald-d:#0A5C4C;
+  --emerald-l:#1AA184;
+  --gold:#E7A928;
+  --gold-l:#F7CE5B;
+  --coral:#FF6F61;
+  --ink:#25382F;
+  --ink-soft:#5A6B62;
+  --white:#ffffff;
+  --shadow:0 12px 28px rgba(14,124,102,.16);
+  --shadow-sm:0 6px 16px rgba(14,124,102,.14);
+  --radius:26px;
+}
+
+/* ---------- BASE ---------- */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:'Baloo 2',system-ui,sans-serif;
+  color:var(--ink);
+  background:
+     radial-gradient(circle at 15% 12%, #FFE6B8 0, transparent 42%),
+     radial-gradient(circle at 88% 8%, #CFEDE3 0, transparent 40%),
+     radial-gradient(circle at 80% 92%, #FFDCC9 0, transparent 45%),
+     var(--cream);
+  overflow-x:hidden;
+  -webkit-user-select:none;user-select:none;
+}
+.app{max-width:520px;margin:0 auto;min-height:100dvh;position:relative;overflow:hidden;}
+.arabic{font-family:'Scheherazade New',serif;direction:rtl;}
+.urdu{font-family:'Noto Nastaliq Urdu',serif;direction:rtl;line-height:2.1;}
+
+/* ---------- SCREENS ---------- */
+.screen{
+  position:absolute;inset:0;padding:22px 20px 28px;
+  display:none;flex-direction:column;
+  opacity:0;transform:translateY(14px);
+  transition:opacity .35s ease, transform .35s ease;
+  overflow-y:auto;
+}
+.screen.active{display:flex;opacity:1;transform:none;}
+
+/* topbar */
+.topbar{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.topbar .who{display:flex;align-items:center;gap:10px;font-weight:700;}
+.avatar-chip{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  font-size:24px;background:var(--white);box-shadow:var(--shadow-sm);}
+.iconbtn{margin-inline-start:auto;border:none;background:var(--white);
+  width:46px;height:46px;border-radius:16px;font-size:20px;box-shadow:var(--shadow-sm);
+  cursor:pointer;color:var(--emerald);font-weight:700;}
+.iconbtn:active{transform:scale(.92);}
+
+/* ---------- BUTTONS ---------- */
+.btn{
+  border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:1.15rem;
+  padding:16px 22px;border-radius:20px;color:#fff;background:var(--emerald);
+  box-shadow:0 8px 0 var(--emerald-d);transition:transform .08s, box-shadow .08s;
+}
+.btn:active{transform:translateY(5px);box-shadow:0 3px 0 var(--emerald-d);}
+.btn.gold{background:var(--gold);box-shadow:0 8px 0 #B47F12;color:#4a3510;}
+.btn.coral{background:var(--coral);box-shadow:0 8px 0 #C24A3E;}
+.btn.ghost{background:var(--white);color:var(--emerald);box-shadow:0 6px 0 #e6dcc4;}
+.btn.block{width:100%;}
+.btn:disabled{opacity:.45;box-shadow:none;transform:none;cursor:not-allowed;}
+.btn-row{display:flex;gap:12px;}
+
+/* ---------- MASCOT (Noori the crescent) ---------- */
+.mascot{width:150px;height:150px;filter:drop-shadow(0 10px 14px rgba(231,169,40,.35));}
+.mascot.bob{animation:bob 2.4s ease-in-out infinite;}
+.mascot.cheer{animation:cheer .7s ease;}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+@keyframes cheer{0%{transform:scale(1)}30%{transform:scale(1.18) rotate(8deg)}60%{transform:scale(.95) rotate(-6deg)}100%{transform:scale(1)}}
+
+/* ============ SPLASH ============ */
+#splash{align-items:center;justify-content:center;text-align:center;gap:6px;}
+.brand{font-size:2.5rem;font-weight:800;color:var(--emerald);letter-spacing:.5px;}
+.brand .noor{color:var(--gold);}
+.brand-ar{font-size:2.2rem;color:var(--emerald-d);margin-top:-6px;}
+.tag{color:var(--ink-soft);font-weight:600;margin:4px 0 26px;}
+
+/* ============ PROFILE SELECT ============ */
+.center-title{font-size:1.5rem;font-weight:800;color:var(--emerald);text-align:center;margin:6px 0 4px;}
+.sub{color:var(--ink-soft);text-align:center;font-weight:600;margin-bottom:18px;}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.pcard{
+  background:var(--white);border-radius:var(--radius);padding:18px 10px;text-align:center;
+  box-shadow:var(--shadow);cursor:pointer;border:3px solid transparent;transition:transform .1s;
+  position:relative;
+}
+.pcard:active{transform:scale(.96);}
+.pcard .pav{font-size:44px;}
+.pcard .pname{font-weight:800;margin-top:6px;color:var(--ink);}
+.pcard .page{font-size:.8rem;color:var(--ink-soft);font-weight:600;}
+.pcard.add{display:grid;place-items:center;background:transparent;border:3px dashed #E2B45C;color:var(--gold);min-height:120px;}
+.pcard.add .plus{font-size:40px;font-weight:800;}
+.mini-edit{position:absolute;top:8px;inset-inline-end:8px;background:var(--cream-2);color:var(--emerald);
+  border:none;width:30px;height:30px;border-radius:50%;font-weight:800;font-size:15px;cursor:pointer;
+  box-shadow:var(--shadow-sm);display:grid;place-items:center;}
+.mini-edit:active{transform:scale(.9);}
+
+/* ============ FORM ============ */
+.field{margin-bottom:14px;}
+.field label{display:block;font-weight:700;margin-bottom:6px;color:var(--emerald-d);}
+.field input, .field select{
+  width:100%;padding:14px 16px;border-radius:16px;border:2px solid #EAD9B4;background:var(--white);
+  font-family:inherit;font-size:1rem;font-weight:600;color:var(--ink);
+}
+.avatar-pick{display:flex;flex-wrap:wrap;gap:8px;}
+.avatar-pick span{
+  width:46px;height:46px;border-radius:14px;background:var(--white);display:grid;place-items:center;
+  font-size:24px;cursor:pointer;box-shadow:var(--shadow-sm);border:3px solid transparent;
+}
+.avatar-pick span.sel{border-color:var(--gold);transform:scale(1.05);}
+.avatar-pick span.upload{color:var(--emerald);font-size:22px;background:var(--cream-2);}
+.avatar-pick span img{width:100%;height:100%;object-fit:cover;border-radius:11px;}
+.avatar-chip img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.pcard .pav img{width:60px;height:60px;object-fit:cover;border-radius:50%;}
+.pcard .pname{word-break:break-word;line-height:1.15;}
+.who{flex-wrap:wrap;}
+#menuName{word-break:break-word;}
+.greet-name{padding:0 12px;line-height:1.25;word-break:break-word;}
+
+/* ============ GREETING ============ */
+#greet{align-items:center;justify-content:center;text-align:center;gap:4px;}
+.greet-ar{font-size:2.1rem;color:var(--emerald);font-weight:700;margin-top:10px;}
+.greet-name{font-size:1.6rem;font-weight:800;color:var(--gold);}
+
+/* ============ MAIN MENU ============ */
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
+.tile{
+  background:var(--white);border-radius:var(--radius);padding:20px 12px;text-align:center;
+  box-shadow:var(--shadow);cursor:pointer;position:relative;transition:transform .1s;
+  min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+}
+.tile:active{transform:scale(.96);}
+.tile .ti{font-size:42px;}
+.tile .tt{font-weight:800;color:var(--ink);}
+.tile.locked{opacity:.6;filter:grayscale(.4);cursor:default;}
+.tile.locked:active{transform:none;}
+.tile .soon{position:absolute;top:10px;inset-inline-end:10px;background:var(--cream-2);color:var(--ink-soft);
+  font-size:.65rem;font-weight:800;padding:3px 8px;border-radius:20px;}
+.tile.qaida{grid-column:1 / -1;background:linear-gradient(135deg,var(--emerald),var(--emerald-l));color:#fff;}
+.tile.qaida .tt{color:#fff;}
+.tile.qaida .ti{font-size:50px;}
+
+/* ============ QAIDA LESSON ============ */
+.lesson-wrap{flex:1;display:flex;flex-direction:column;min-height:0;}
+.progress-dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:6px 0 12px;}
+.dot{width:9px;height:9px;border-radius:50%;background:#E6D8B8;}
+.dot.done{background:var(--emerald-l);}
+.dot.now{background:var(--gold);transform:scale(1.35);}
+
+.stage{
+  flex:1;min-height:0;background:var(--white);border-radius:32px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px 18px;text-align:center;gap:8px;position:relative;overflow:hidden;
+}
+.stage .kicker{font-weight:700;color:var(--ink-soft);}
+.big-letter{font-family:'Scheherazade New',serif;font-size:7.6rem;line-height:1.3;color:var(--emerald);
+  direction:rtl;margin:0;padding-bottom:6px;}
+.big-phrase{font-family:'Scheherazade New',serif;font-size:2.9rem;color:var(--emerald);direction:rtl;
+  line-height:1.7;}
+.letter-name{font-size:1.5rem;font-weight:800;color:var(--gold);margin-top:2px;}
+.mnemonic{display:flex;align-items:center;gap:10px;justify-content:center;background:var(--cream);
+  padding:12px 16px;border-radius:18px;max-width:90%;}
+.mnemonic .em{font-size:34px;}
+.mnemonic .mtext{font-weight:700;color:var(--ink);}
+.mnemonic .mtext.urdu{font-size:1.15rem;}
+.tap-hint{color:var(--ink-soft);font-weight:600;font-size:.85rem;}
+.speaker{position:absolute;top:14px;inset-inline-end:14px;background:var(--cream);border:none;
+  width:48px;height:48px;border-radius:16px;font-size:22px;cursor:pointer;color:var(--emerald);}
+.speaker:active{transform:scale(.9);}
+
+.nav-row{display:flex;gap:12px;margin-top:12px;padding-bottom:4px;}
+.nav-row .btn{flex:1;padding-inline:12px;}
+#nextBtn{animation:nudge 1.9s ease-in-out infinite;}
+@keyframes nudge{0%,88%,100%{transform:none}92%{transform:translateY(-4px)}}
+
+/* ============ REWARD ============ */
+#reward{align-items:center;justify-content:center;text-align:center;gap:8px;}
+.reward-title{font-size:1.9rem;font-weight:800;color:var(--emerald);}
+.reward-star{font-size:70px;animation:cheer .8s ease infinite alternate;}
+
+/* ---------- falling bits ---------- */
+.fall{position:fixed;top:-40px;font-size:26px;pointer-events:none;z-index:60;animation:fall linear forwards;}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg);opacity:.15;}}
+
+/* voice note */
+.voice-note{background:#fff3d6;color:#8a6d1e;border-radius:14px;padding:10px 14px;font-weight:600;
+  font-size:.85rem;margin-top:12px;display:none;}
+.voice-note.show{display:block;}
+
+/* confirm modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(18,42,32,.55);display:none;
+  align-items:center;justify-content:center;z-index:200;padding:24px;}
+.modal-overlay.show{display:flex;}
+.modal-card{background:#fff;border-radius:28px;padding:26px 22px;text-align:center;
+  max-width:340px;width:100%;box-shadow:var(--shadow);animation:pop .25s ease;}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-emoji{font-size:46px;}
+.modal-msg{font-weight:800;color:var(--ink);margin:10px 0 20px;font-size:1.1rem;line-height:1.5;white-space:pre-line;}
+.modal-btns{display:flex;gap:12px;}
+.modal-btns .btn{flex:1;font-size:1.05rem;padding:14px;}
+
+@media(max-width:360px){
+  .big-letter{font-size:7rem;}
+  .brand{font-size:2.1rem;}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ===================== SPLASH ===================== -->
+  <section class="screen" id="splash">
+    <svg class="mascot bob" viewBox="0 0 120 120" id="splash-mascot"></svg>
+    <div class="brand"><span class="noor">Misbah</span>-ul-Quran</div>
+    <div class="brand-ar arabic">مِصْبَاحُ الْقُرْآن</div>
+    <div class="tag">Learn the Qaida the fun way ✨</div>
+    <button class="btn gold" style="min-width:200px" onclick="go('profiles')">Start ▶</button>
+    <button class="btn ghost" id="installBtn" style="display:none;margin-top:12px;min-width:200px" onclick="doInstall()">📲 Install app</button>
+  </section>
+
+  <!-- ===================== PROFILE SELECT ===================== -->
+  <section class="screen" id="profiles">
+    <div class="topbar">
+      <div class="brand" style="font-size:1.4rem"><span class="noor">Misbah</span>-ul-Quran</div>
+    </div>
+    <div class="center-title">Who is reading today?</div>
+    <div class="sub">Tap your name to begin</div>
+    <div class="profile-grid" id="profileGrid"></div>
+  </section>
+
+  <!-- ===================== ADD / EDIT PROFILE ===================== -->
+  <section class="screen" id="profileForm">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="go('profiles')">‹</button>
+      <div class="center-title" id="formTitle" style="margin:0">New Child</div>
+    </div>
+    <div class="field">
+      <label>Child's name</label>
+      <input id="fName" placeholder="e.g. Syed Muhammad Abdul Wasay" maxlength="40"/>
+    </div>
+    <div class="field">
+      <label>Age</label>
+      <input id="fAge" type="number" min="3" max="15" placeholder="e.g. 6"/>
+    </div>
+    <div class="field">
+      <label>Explanation language</label>
+      <select id="fLang">
+        <option value="ur">Urdu (اردو)</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Choose an avatar</label>
+      <div class="avatar-pick" id="avatarPick"></div>
+      <input type="file" id="avatarFile" accept="image/*" style="display:none" onchange="handleAvatarFile(event)"/>
+    </div>
+    <button class="btn block" id="saveProfileBtn" onclick="saveProfile()">Save 💾</button>
+    <button class="btn coral block" id="deleteProfileBtn" onclick="confirmDelete()" style="margin-top:12px;display:none">Delete this child 🗑</button>
+  </section>
+
+  <!-- ===================== GREETING ===================== -->
+  <section class="screen" id="greet">
+    <svg class="mascot cheer" viewBox="0 0 120 120" id="greet-mascot"></svg>
+    <div class="greet-ar arabic">اَلسَّلَامُ عَلَيْكُمْ</div>
+    <div class="greet-name" id="greetName">Dost!</div>
+    <button class="btn gold" style="margin-top:20px;min-width:180px" onclick="go('menu')">Let's go ▶</button>
+  </section>
+
+  <!-- ===================== MAIN MENU ===================== -->
+  <section class="screen" id="menu">
+    <div class="topbar">
+      <div class="who"><span class="avatar-chip" id="menuAvatar">🌙</span><span id="menuName">Dost</span></div>
+      <button class="iconbtn" onclick="go('profiles')">⇄</button>
+    </div>
+    <div class="menu-grid">
+      <div class="tile qaida" onclick="startQaida()">
+        <div class="ti">📖</div><div class="tt">Qaida</div>
+      </div>
+      <div class="tile locked"><div class="soon">soon</div><div class="ti">🕋</div><div class="tt">Quran Reading</div></div>
+      <div class="tile locked"><div class="soon">soon</div><div class="ti">🎈</div><div class="tt">Games</div></div>
+      <div class="tile locked"><div class="soon">soon</div><div class="ti">🤲</div><div class="tt">Duas &amp; Salah</div></div>
+      <div class="tile locked"><div class="soon">soon</div><div class="ti">⭐</div><div class="tt">My Progress</div></div>
+    </div>
+  </section>
+
+  <!-- ===================== QAIDA LESSON ===================== -->
+  <section class="screen" id="qaida">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="go('menu')">‹</button>
+      <div class="center-title" id="qTitle" style="margin:0;font-size:1.2rem">Qaida</div>
+    </div>
+    <div class="progress-dots" id="qDots"></div>
+    <div class="lesson-wrap">
+      <div class="stage" id="qStage" onclick="playCurrent()">
+        <button class="speaker" onclick="event.stopPropagation();playCurrent()">🔊</button>
+        <!-- filled by JS -->
+      </div>
+      <div class="voice-note" id="voiceNote">🔈 Is device par Arabic voice install nahi hai. Phone/tablet ki settings → Languages se "Arabic" add karein.</div>
+      <div class="nav-row">
+        <button class="btn ghost" id="prevBtn" onclick="prevStep()">‹ Back</button>
+        <button class="btn gold" onclick="playCurrent()">Repeat 🔁</button>
+        <button class="btn" id="nextBtn" onclick="nextStep()">Next ›</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== REWARD ===================== -->
+  <section class="screen" id="reward">
+    <div class="reward-star">🌟</div>
+    <div class="reward-title" id="rewardTitle">Shabash!</div>
+    <div class="sub" id="rewardSub">You finished the lesson!</div>
+    <button class="btn gold" style="min-width:180px;margin-top:10px" onclick="go('menu')">Back to menu 🏠</button>
+  </section>
+
+</div>
+
+<!-- ===================== CONFIRM MODAL ===================== -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-card">
+    <div class="modal-emoji">🗑️</div>
+    <div class="modal-msg" id="confirmMsg">Delete?</div>
+    <div class="modal-btns">
+      <button class="btn ghost" onclick="closeConfirm()">Cancel</button>
+      <button class="btn coral" id="confirmYes">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   1. QAIDA_CONFIG  — ALL learning content lives here.
+   To add letters/rules: edit this object only. UI won't change.
+   ============================================================ */
+const QAIDA_CONFIG = {
+
+  // Always taught first, before the letters
+  opening:[
+    { arabic:"أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ",
+      hint:{ur:"شیطان سے اللہ کی پناہ مانگتے ہیں", en:"We seek Allah's protection from Shaitan"} },
+    { arabic:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+      hint:{ur:"اللہ کے نام سے شروع", en:"In the name of Allah, the Most Merciful"} }
+  ],
+
+  // Lessons — each has items. First lesson = the Arabic letters (huroof-e-tahajji)
+  lessons:[
+    {
+      id:"letters-1",
+      title:{ur:"حروفِ تہجی", en:"The Letters"},
+      items:[
+        {letter:"ا", name:"Alif",  visual:"🪄", mnemonic:{ur:"سیدھی کھڑی لاٹھی جیسا",   en:"A tall straight stick"}},
+        {letter:"ب", name:"Ba",    visual:"🛶", mnemonic:{ur:"کشتی، نیچے ایک نقطہ",       en:"A boat with one dot below"}},
+        {letter:"ت", name:"Ta",    visual:"🛶", mnemonic:{ur:"کشتی، اوپر دو نقطے",        en:"A boat with two dots on top"}},
+        {letter:"ث", name:"Sa",    visual:"🛶", mnemonic:{ur:"کشتی، اوپر تین نقطے",       en:"A boat with three dots on top"}},
+        {letter:"ج", name:"Jeem",  visual:"🥣", mnemonic:{ur:"پیٹ، اندر ایک نقطہ",        en:"A curved belly, one dot inside"}},
+        {letter:"ح", name:"Hha",   visual:"🥣", mnemonic:{ur:"پیٹ، کوئی نقطہ نہیں",       en:"A curved belly, no dots"}},
+        {letter:"خ", name:"Kha",   visual:"🥣", mnemonic:{ur:"پیٹ، اوپر ایک نقطہ",        en:"A curved belly, one dot above"}},
+        {letter:"د", name:"Dal",   visual:"🪝", mnemonic:{ur:"چھوٹی سی ہُک",             en:"A little hook"}},
+        {letter:"ذ", name:"Zal",   visual:"🪝", mnemonic:{ur:"ہُک، اوپر ایک نقطہ",        en:"A hook with one dot above"}},
+        {letter:"ر", name:"Ra",    visual:"🎣", mnemonic:{ur:"جھکی ہوئی چھڑی",           en:"A bending stick"}},
+        {letter:"ز", name:"Za",    visual:"🎣", mnemonic:{ur:"جھکی چھڑی، اوپر نقطہ",      en:"A bending stick, dot on top"}},
+        {letter:"س", name:"Seen",  visual:"🦷", mnemonic:{ur:"تین چھوٹے دانت",           en:"Three little teeth"}},
+        {letter:"ش", name:"Sheen", visual:"🦷", mnemonic:{ur:"تین دانت، اوپر تین نقطے",   en:"Three teeth, three dots above"}},
+        {letter:"ص", name:"Saad",  visual:"🦆", mnemonic:{ur:"بطخ جیسا",                 en:"Shaped like a duck"}},
+        {letter:"ض", name:"Zaad",  visual:"🦆", mnemonic:{ur:"بطخ، اوپر ایک نقطہ",        en:"A duck with one dot above"}},
+        {letter:"ط", name:"Toa",   visual:"🏑", mnemonic:{ur:"کھڑی لاٹھی والا",          en:"With a tall standing stick"}},
+        {letter:"ظ", name:"Zoa",   visual:"🏑", mnemonic:{ur:"کھڑی لاٹھی، اوپر نقطہ",     en:"Tall stick, one dot above"}},
+        {letter:"ع", name:"Ain",   visual:"👄", mnemonic:{ur:"کھلا منہ جیسا",            en:"Like an open mouth"}},
+        {letter:"غ", name:"Ghain", visual:"👄", mnemonic:{ur:"کھلا منہ، اوپر نقطہ",       en:"Open mouth, one dot above"}},
+        {letter:"ف", name:"Fa",    visual:"⭕", mnemonic:{ur:"گول سر، اوپر ایک نقطہ",     en:"A round head, one dot above"}},
+        {letter:"ق", name:"Qaf",   visual:"⭕", mnemonic:{ur:"گول سر، اوپر دو نقطے",      en:"A round head, two dots above"}},
+        {letter:"ك", name:"Kaf",   visual:"🔑", mnemonic:{ur:"چابی جیسا",               en:"Shaped like a key"}},
+        {letter:"ل", name:"Laam",  visual:"🏒", mnemonic:{ur:"لمبی مڑی ہوئی چھڑی",       en:"A tall curved stick"}},
+        {letter:"م", name:"Meem",  visual:"🎈", mnemonic:{ur:"گول سر، ساتھ دُم",         en:"A round head with a tail"}},
+        {letter:"ن", name:"Noon",  visual:"🥣", mnemonic:{ur:"پیالی، اوپر ایک نقطہ",      en:"A bowl with one dot above"}},
+        {letter:"و", name:"Waw",   visual:"🫧", mnemonic:{ur:"گول موتی جیسا",            en:"Round like a bubble"}},
+        {letter:"ه", name:"Ha",    visual:"💗", mnemonic:{ur:"گول سا دل جیسا",           en:"Like a little round heart"}},
+        {letter:"ء", name:"Hamza", visual:"✂️", mnemonic:{ur:"چھوٹی جھٹکے والی",         en:"A small quick jerk"}},
+        {letter:"ي", name:"Ya",    visual:"🛶", mnemonic:{ur:"کشتی، نیچے دو نقطے",        en:"A boat with two dots below"}}
+      ]
+    }
+    // --- FUTURE LESSONS PLUG IN HERE (joined letters, etc.) ---
+  ],
+
+  // --- EMPTY on purpose. Madd / Qalqalah / Harakat rules added in Phase 2 ---
+  rules:[
+    // { id:"madd", title:{ur:"حروفِ مد", en:"Letters of Madd"}, ... }
+  ],
+
+  // --- EMPTY on purpose. Sawal-Jawab (Q&A) from Madani Qaida added later ---
+  quiz:[
+    // { q:{ur:"...", en:"..."}, options:[...], answer:0 }
+  ]
+};
+
+/* ============================================================
+   2. STATE + STORAGE
+   ============================================================ */
+const AVATARS = ["🌙","⭐","🌸","🐤","🦋","🌷","🐝","🦉","🐣","🕌","📖","🌟"];
+const LS_KEY = "noorQaida.v1";
+
+let store = load();               // {profiles:[], currentId:null}
+let editingId = null;             // profile being edited
+let pickedAvatar = AVATARS[0];
+
+let lesson = { steps:[], index:0, lessonId:null };  // active Qaida run
+
+function load(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {profiles:[],currentId:null}; }
+  catch(e){ return {profiles:[],currentId:null}; }
+}
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(store)); }
+function currentProfile(){ return store.profiles.find(p=>p.id===store.currentId) || null; }
+
+/* ============================================================
+   3. AUDIO  (SpeechSynthesis: Arabic ar-SA)
+   ============================================================ */
+let voicesReady = false;
+function primeVoices(){
+  const v = speechSynthesis.getVoices();
+  if(v.length){ voicesReady = true; }
+}
+speechSynthesis.onvoiceschanged = primeVoices;
+primeVoices();
+
+function pickVoice(lang){
+  const vs = speechSynthesis.getVoices();
+  return vs.find(v=>v.lang && v.lang.toLowerCase().startsWith(lang)) || null;
+}
+function speak(text, lang="ar-SA"){
+  if(!('speechSynthesis' in window)) return showVoiceNote(true);
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang; u.rate = .8; u.pitch = 1.05;
+  const v = pickVoice("ar");
+  if(v){ u.voice = v; showVoiceNote(false); }
+  else { showVoiceNote(true); }   // no arabic voice — still tries default
+  speechSynthesis.speak(u);
+}
+function showVoiceNote(show){
+  const n = document.getElementById('voiceNote');
+  if(n) n.classList.toggle('show', show);
+}
+
+/* ============================================================
+   4. MASCOT (inline SVG crescent "Noori")
+   ============================================================ */
+const MASCOT_SVG = `
+  <defs>
+    <linearGradient id="moong" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F7CE5B"/><stop offset="1" stop-color="#E7A928"/>
+    </linearGradient>
+  </defs>
+  <circle cx="88" cy="30" r="6" fill="#F7CE5B"/>
+  <circle cx="26" cy="24" r="4" fill="#F7CE5B"/>
+  <path d="M78 20 A44 44 0 1 0 78 100 A34 34 0 1 1 78 20 Z" fill="url(#moong)"/>
+  <circle cx="46" cy="52" r="5.5" fill="#4a3510"/>
+  <circle cx="66" cy="50" r="5.5" fill="#4a3510"/>
+  <circle cx="48" cy="50" r="1.8" fill="#fff"/>
+  <circle cx="68" cy="48" r="1.8" fill="#fff"/>
+  <path d="M44 66 Q56 78 70 64" stroke="#4a3510" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <circle cx="40" cy="64" r="5" fill="#FF9E9E" opacity=".6"/>
+  <circle cx="72" cy="61" r="5" fill="#FF9E9E" opacity=".6"/>`;
+document.getElementById('splash-mascot').innerHTML = MASCOT_SVG;
+document.getElementById('greet-mascot').innerHTML = MASCOT_SVG;
+
+/* ============================================================
+   5. ROUTER + SCREENS
+   ============================================================ */
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('app').scrollTop = 0;
+  if(id==='profiles') renderProfiles();
+  if(id==='menu') renderMenu();
+}
+
+/* ---- Profiles ---- */
+function renderProfiles(){
+  const grid = document.getElementById('profileGrid');
+  grid.innerHTML = "";
+  store.profiles.forEach(p=>{
+    const c = document.createElement('div');
+    c.className='pcard';
+    c.innerHTML = `<button class="mini-edit" onclick="event.stopPropagation();editProfile('${p.id}')" title="Edit">✎</button>
+      <div class="pav">${avatarInner(p.avatar)}</div><div class="pname">${escapeHtml(p.name)}</div>
+      <div class="page">Age ${p.age||'-'}</div>`;
+    c.onclick = ()=>selectProfile(p.id);
+    grid.appendChild(c);
+  });
+  const add = document.createElement('div');
+  add.className='pcard add';
+  add.innerHTML = `<div class="plus">+</div><div class="pname">Add child</div>`;
+  add.onclick = ()=>newProfile();
+  grid.appendChild(add);
+}
+
+function newProfile(){
+  editingId=null; pickedAvatar=AVATARS[0];
+  document.getElementById('formTitle').textContent="New Child";
+  document.getElementById('fName').value="";
+  document.getElementById('fAge').value="";
+  document.getElementById('fLang').value="ur";
+  document.getElementById('deleteProfileBtn').style.display="none";
+  renderAvatarPick();
+  go('profileForm');
+}
+function editProfile(id){
+  const p = store.profiles.find(x=>x.id===id); if(!p) return;
+  editingId=id; pickedAvatar=p.avatar;
+  document.getElementById('formTitle').textContent="Edit "+p.name;
+  document.getElementById('fName').value=p.name;
+  document.getElementById('fAge').value=p.age||"";
+  document.getElementById('fLang').value=p.lang||"ur";
+  document.getElementById('deleteProfileBtn').style.display="block";
+  renderAvatarPick();
+  go('profileForm');
+}
+function renderAvatarPick(){
+  const box = document.getElementById('avatarPick'); box.innerHTML="";
+  AVATARS.forEach(a=>{
+    const s = document.createElement('span');
+    s.textContent=a; if(a===pickedAvatar) s.className='sel';
+    s.onclick=()=>{ pickedAvatar=a; renderAvatarPick(); };
+    box.appendChild(s);
+  });
+  // Add-your-own-photo tile
+  const up = document.createElement('span');
+  up.className = 'upload' + (isImg(pickedAvatar)?' sel':'');
+  up.title = 'Add photo';
+  up.innerHTML = isImg(pickedAvatar) ? `<img src="${pickedAvatar}" alt=""/>` : '📷';
+  up.onclick = ()=>document.getElementById('avatarFile').click();
+  box.appendChild(up);
+}
+function saveProfile(){
+  const name = document.getElementById('fName').value.trim();
+  if(!name){ document.getElementById('fName').focus(); return; }
+  const age = document.getElementById('fAge').value;
+  const lang = document.getElementById('fLang').value;
+  if(editingId){
+    const p = store.profiles.find(x=>x.id===editingId);
+    Object.assign(p,{name,age,lang,avatar:pickedAvatar});
+  } else {
+    store.profiles.push({id:'p'+Date.now(),name,age,lang,avatar:pickedAvatar,progress:{}});
+  }
+  save(); go('profiles');
+}
+function delProfile(id){
+  store.profiles = store.profiles.filter(p=>p.id!==id);
+  if(store.currentId===id) store.currentId=null;
+  save(); renderProfiles();
+}
+function confirmDelete(){
+  const p = store.profiles.find(x=>x.id===editingId); if(!p) return;
+  askConfirm('"'+p.name+'" ko delete karein?\nYe wapas nahi aayega.', ()=>{
+    delProfile(editingId);
+    editingId=null;
+    go('profiles');
+  });
+}
+/* ---- custom confirm (native confirm() is blocked in app webview) ---- */
+let _confirmCb=null;
+function askConfirm(msg, cb){
+  document.getElementById('confirmMsg').textContent = msg;
+  _confirmCb = cb;
+  document.getElementById('confirmModal').classList.add('show');
+}
+function closeConfirm(){
+  document.getElementById('confirmModal').classList.remove('show');
+  _confirmCb = null;
+}
+document.getElementById('confirmYes').onclick = ()=>{
+  const cb=_confirmCb; closeConfirm(); if(cb) cb();
+};
+document.getElementById('confirmModal').onclick = (e)=>{
+  if(e.target.id==='confirmModal') closeConfirm();
+};
+
+/* ---- Select + greet ---- */
+function selectProfile(id){
+  store.currentId=id; save();
+  const p = currentProfile();
+  document.getElementById('greetName').textContent = p.name + "!";
+  go('greet');
+  const m = document.getElementById('greet-mascot');
+  m.classList.remove('cheer'); void m.offsetWidth; m.classList.add('cheer');
+  confetti();
+  setTimeout(()=>speak("السلام عليكم "+p.name), 350);
+}
+
+/* ---- Menu ---- */
+function renderMenu(){
+  const p = currentProfile(); if(!p){ go('profiles'); return; }
+  document.getElementById('menuName').textContent = p.name;
+  document.getElementById('menuAvatar').innerHTML = avatarInner(p.avatar);
+}
+
+/* ============================================================
+   6. QAIDA ENGINE  (builds steps from CONFIG)
+   ============================================================ */
+function startQaida(){
+  const L = QAIDA_CONFIG.lessons[0];   // Phase 1: first lesson (letters)
+  lesson.steps = [];
+  lesson.lessonId = L.id;
+
+  // opening phrases first
+  QAIDA_CONFIG.opening.forEach(o=>{
+    lesson.steps.push({type:'phrase', arabic:o.arabic, hint:o.hint});
+  });
+  // then the letters
+  L.items.forEach(it=>{
+    lesson.steps.push({type:'letter', letter:it.letter, name:it.name, visual:it.visual, mnemonic:it.mnemonic});
+  });
+
+  lesson.index = 0;
+  document.getElementById('qTitle').textContent = langText(L.title);
+  go('qaida');
+  renderStep();
+}
+
+function renderStep(){
+  const s = lesson.steps[lesson.index];
+  const stage = document.getElementById('qStage');
+  const lang = (currentProfile()?.lang)||'ur';
+
+  // dots
+  const dots = document.getElementById('qDots');
+  dots.innerHTML="";
+  lesson.steps.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='dot'+(i<lesson.index?' done':'')+(i===lesson.index?' now':'');
+    dots.appendChild(d);
+  });
+
+  let inner = `<button class="speaker" onclick="event.stopPropagation();playCurrent()">🔊</button>`;
+  if(s.type==='phrase'){
+    inner += `<div class="kicker">${lesson.index===0?'Let\'s begin 🌙':'Bismillah'}</div>
+      <div class="big-phrase arabic">${s.arabic}</div>
+      <div class="mnemonic"><span class="mtext ${lang==='ur'?'urdu':''}">${escapeHtml(langText(s.hint))}</span></div>
+      <div class="tap-hint">Tap anywhere to hear 🔊</div>`;
+  } else {
+    inner += `<div class="kicker">Letter</div>
+      <div class="big-letter">${s.letter}</div>
+      <div class="letter-name">${s.name}</div>
+      <div class="mnemonic"><span class="em">${s.visual}</span>
+        <span class="mtext ${lang==='ur'?'urdu':''}">${escapeHtml(langText(s.mnemonic))}</span></div>
+      <div class="tap-hint">Tap the letter to hear it 🔊</div>`;
+  }
+  stage.innerHTML = inner;
+
+  // nav state
+  document.getElementById('prevBtn').disabled = lesson.index===0;
+  document.getElementById('nextBtn').textContent = (lesson.index===lesson.steps.length-1) ? "Finish 🎉" : "Next ›";
+
+  // auto play once
+  setTimeout(playCurrent, 250);
+}
+
+function playCurrent(){
+  const s = lesson.steps[lesson.index];
+  if(!s) return;
+  if(s.type==='phrase') speak(s.arabic);
+  else speak(s.letter);
+  const st = document.getElementById('qStage');
+  st.animate([{transform:'scale(1)'},{transform:'scale(1.02)'},{transform:'scale(1)'}],{duration:260});
+}
+function nextStep(){
+  if(lesson.index < lesson.steps.length-1){ lesson.index++; renderStep(); }
+  else finishLesson();
+}
+function prevStep(){
+  if(lesson.index>0){ lesson.index--; renderStep(); }
+}
+function finishLesson(){
+  const p = currentProfile();
+  if(p){ p.progress = p.progress||{}; p.progress[lesson.lessonId]=true; save(); }
+  document.getElementById('rewardTitle').textContent = "Shabash, "+(p?.name||'Dost')+"! 🎉";
+  go('reward');
+  confetti(true);
+  setTimeout(()=>speak((p?.name||'')+" ما شاء الله"), 300);
+}
+
+/* ============================================================
+   7. HELPERS
+   ============================================================ */
+function langText(obj){
+  const lang = (currentProfile()?.lang)||'ur';
+  if(typeof obj==='string') return obj;
+  return obj[lang] || obj.en || obj.ur || '';
+}
+function escapeHtml(str){ return (str+'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* ---- Avatar helpers (emoji OR uploaded photo) ---- */
+function isImg(a){ return typeof a==='string' && a.startsWith('data:'); }
+function avatarInner(a){ return isImg(a) ? `<img src="${a}" alt=""/>` : (a||'🌙'); }
+function handleAvatarFile(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const S=160, c=document.createElement('canvas'); c.width=S; c.height=S;
+      const ctx=c.getContext('2d');
+      const scale=Math.max(S/img.width, S/img.height);
+      const w=img.width*scale, h=img.height*scale;
+      ctx.drawImage(img,(S-w)/2,(S-h)/2,w,h);
+      pickedAvatar = c.toDataURL('image/jpeg',0.82);
+      renderAvatarPick();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value="";
+}
+
+function confetti(big){
+  const emojis = big ? ['⭐','🌟','🎉','🌸','🏆'] : ['⭐','🌸','✨'];
+  const n = big?26:14;
+  for(let i=0;i<n;i++){
+    const e=document.createElement('div');
+    e.className='fall'; e.textContent=emojis[i%emojis.length];
+    e.style.left=Math.random()*100+'vw';
+    e.style.animationDuration=(2+Math.random()*2)+'s';
+    e.style.fontSize=(20+Math.random()*20)+'px';
+    document.body.appendChild(e);
+    setTimeout(()=>e.remove(),4200);
+  }
+}
+
+/* ============================================================
+   8. BOOT
+   ============================================================ */
+go('splash');
+
+/* ---- PWA: service worker + install prompt ---- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt', e=>{
+  e.preventDefault(); deferredPrompt=e;
+  const b=document.getElementById('installBtn'); if(b) b.style.display='inline-block';
+});
+function doInstall(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.finally(()=>{
+    deferredPrompt=null;
+    const b=document.getElementById('installBtn'); if(b) b.style.display='none';
+  });
+}
+window.addEventListener('appinstalled', ()=>{
+  const b=document.getElementById('installBtn'); if(b) b.style.display='none';
+});
+</script>
+</body>
+</html>
