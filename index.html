@@ -235,9 +235,50 @@ body{
 .modal-btns{display:flex;gap:12px;}
 .modal-btns .btn{flex:1;font-size:1.05rem;padding:14px;}
 
+/* ===== Phase 2: Hub / Harakat / Rule / Quiz ===== */
+.hub-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
+.hub-card{background:var(--white);border-radius:var(--radius);padding:22px 12px;text-align:center;
+  box-shadow:var(--shadow);cursor:pointer;position:relative;min-height:120px;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:transform .1s;}
+.hub-card:active{transform:scale(.96);}
+.hub-card.done{background:linear-gradient(135deg,#E6F3EF,#fff);}
+.hub-ic{font-size:38px;line-height:1;}
+.hub-tt{font-weight:800;color:var(--ink);font-size:.95rem;line-height:1.2;}
+.hub-no{position:absolute;top:10px;inset-inline-start:13px;font-weight:800;color:var(--gold);}
+.hub-done{position:absolute;top:9px;inset-inline-end:11px;background:var(--emerald-l);color:#fff;
+  width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.9rem;}
+.hub-card.quiz{grid-column:1 / -1;background:linear-gradient(135deg,var(--gold),var(--gold-l));min-height:96px;}
+.hub-card.quiz .hub-tt{color:#4a3510;}
+.hub-card.quiz.done{background:linear-gradient(135deg,#E6F3EF,#fff);}
+
+.rule-text{font-size:1.55rem;font-weight:800;color:var(--emerald);line-height:1.7;max-width:94%;}
+.rule-text.urdu{font-family:'Noto Nastaliq Urdu',serif;font-size:1.4rem;line-height:2.3;}
+
+.harakat-row{display:flex;gap:12px;justify-content:center;margin:6px 0;}
+.hk{background:var(--cream);border-radius:18px;padding:14px 10px;cursor:pointer;min-width:80px;transition:transform .08s;}
+.hk:active{transform:scale(.93);}
+.hk-l{font-family:'Scheherazade New',serif;font-size:3.6rem;color:var(--emerald);direction:rtl;line-height:1.25;}
+.hk-s{font-weight:800;color:var(--gold);margin-top:2px;font-size:1.1rem;}
+
+.quiz-box{background:var(--white);border-radius:28px;box-shadow:var(--shadow);padding:24px 18px;
+  margin-top:10px;text-align:center;}
+.q-text{font-size:1.2rem;font-weight:800;color:var(--ink);margin-bottom:8px;}
+.q-text.urdu{font-family:'Noto Nastaliq Urdu',serif;line-height:2.1;}
+.q-show{font-family:'Scheherazade New',serif;font-size:5rem;color:var(--emerald);direction:rtl;
+  margin:4px 0 16px;cursor:pointer;}
+.q-options{display:flex;flex-direction:column;gap:11px;}
+.q-opt{border:2px solid #EAD9B4;background:var(--white);border-radius:16px;padding:14px;
+  font-family:inherit;font-weight:800;font-size:1.1rem;color:var(--ink);cursor:pointer;transition:transform .08s;}
+.q-opt:active{transform:scale(.98);}
+.q-opt.correct{background:#E6F3EF;border-color:var(--emerald-l);color:var(--emerald);}
+.q-opt.wrong{background:#FFE7E3;border-color:var(--coral);color:#C24A3E;}
+.q-opt.locked{cursor:default;}
+
 @media(max-width:360px){
   .big-letter{font-size:7rem;}
   .brand{font-size:2.1rem;}
+  .hk-l{font-size:3rem;}
+  .q-show{font-size:4.2rem;}
 }
 </style>
 </head>
@@ -309,7 +350,7 @@ body{
       <button class="iconbtn" onclick="go('profiles')">⇄</button>
     </div>
     <div class="menu-grid">
-      <div class="tile qaida" onclick="startQaida()">
+      <div class="tile qaida" onclick="openQaidaHub()">
         <div class="ti">📖</div><div class="tt">Qaida</div>
       </div>
       <div class="tile locked"><div class="soon">soon</div><div class="ti">🕋</div><div class="tt">Quran Reading</div></div>
@@ -317,6 +358,16 @@ body{
       <div class="tile locked"><div class="soon">soon</div><div class="ti">🤲</div><div class="tt">Duas &amp; Salah</div></div>
       <div class="tile locked"><div class="soon">soon</div><div class="ti">⭐</div><div class="tt">My Progress</div></div>
     </div>
+  </section>
+
+  <!-- ===================== QAIDA HUB ===================== -->
+  <section class="screen" id="qaidaHub">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="go('menu')">‹</button>
+      <div class="center-title" style="margin:0;font-size:1.2rem">Qaida</div>
+    </div>
+    <div class="sub">Ek ek karke seekho ✨</div>
+    <div class="hub-grid" id="hubGrid"></div>
   </section>
 
   <!-- ===================== QAIDA LESSON ===================== -->
@@ -340,12 +391,22 @@ body{
     </div>
   </section>
 
+  <!-- ===================== QUIZ (Sawal-Jawab) ===================== -->
+  <section class="screen" id="quiz">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="openQaidaHub()">‹</button>
+      <div class="center-title" style="margin:0;font-size:1.2rem">Sawal-Jawab</div>
+      <span id="quizProgress" style="margin-inline-start:auto;font-weight:800;color:var(--emerald)"></span>
+    </div>
+    <div class="quiz-box" id="quizBox"></div>
+  </section>
+
   <!-- ===================== REWARD ===================== -->
   <section class="screen" id="reward">
     <div class="reward-star">🌟</div>
     <div class="reward-title" id="rewardTitle">Shabash!</div>
     <div class="sub" id="rewardSub">You finished the lesson!</div>
-    <button class="btn gold" style="min-width:180px;margin-top:10px" onclick="go('menu')">Back to menu 🏠</button>
+    <button class="btn gold" style="min-width:180px;margin-top:10px" onclick="openQaidaHub()">Back to Qaida 🏠</button>
   </section>
 
 </div>
@@ -380,7 +441,7 @@ const QAIDA_CONFIG = {
   // Lessons — each has items. First lesson = the Arabic letters (huroof-e-tahajji)
   lessons:[
     {
-      id:"letters-1",
+      id:"letters-1", icon:"🔤", type:"letters",
       title:{ur:"حروفِ تہجی", en:"The Letters"},
       items:[
         {letter:"ا", name:"Alif",  visual:"🪄", mnemonic:{ur:"سیدھی کھڑی لاٹھی جیسا",   en:"A tall straight stick"}},
@@ -413,18 +474,76 @@ const QAIDA_CONFIG = {
         {letter:"ء", name:"Hamza", visual:"✂️", mnemonic:{ur:"چھوٹی جھٹکے والی",         en:"A small quick jerk"}},
         {letter:"ي", name:"Ya",    visual:"🛶", mnemonic:{ur:"کشتی، نیچے دو نقطے",        en:"A boat with two dots below"}}
       ]
+    },
+
+    // ---- Harakat: zabar / zer / pesh ----
+    {
+      id:"harakat", icon:"◌َ", type:"harakat",
+      title:{ur:"حرکات — زبر، زیر، پیش", en:"Harakat — Vowels"},
+      intro:{ur:"زبر (اوپر) = اَ ، زیر (نیچے) = اِ ، پیش (اوپر گول) = اُ", en:"Zabar = a, Zer = i, Pesh = u"},
+      items:[
+        {letter:"ا",name:"Alif"},{letter:"ب",name:"Ba"},{letter:"ت",name:"Ta"},
+        {letter:"ج",name:"Jeem"},{letter:"د",name:"Dal"},{letter:"ر",name:"Ra"},
+        {letter:"س",name:"Seen"},{letter:"ع",name:"Ain"},{letter:"ف",name:"Fa"},
+        {letter:"ك",name:"Kaf"},{letter:"ل",name:"Laam"},{letter:"م",name:"Meem"},
+        {letter:"ن",name:"Noon"},{letter:"ه",name:"Ha"}
+      ]
+    },
+
+    // ---- Jorr: joining letters ----
+    {
+      id:"jorr", icon:"🔗", type:"joined",
+      title:{ur:"حروف ملانا (جوڑ)", en:"Joining Letters"},
+      intro:{ur:"دو یا تین حرف مل کر پڑھو", en:"Read two or three letters joined"},
+      items:[
+        {arabic:"بَتَ", tr:"ba-ta"},
+        {arabic:"سَمَ", tr:"sa-ma"},
+        {arabic:"جَدَ", tr:"ja-da"},
+        {arabic:"نَبَ", tr:"na-ba"},
+        {arabic:"كَتَبَ", tr:"ka-ta-ba"},
+        {arabic:"ذَهَبَ", tr:"za-ha-ba"},
+        {arabic:"نَصَرَ", tr:"na-sa-ra"},
+        {arabic:"جَلَسَ", tr:"ja-la-sa"}
+      ]
+    },
+
+    // ---- Madd letters ----
+    {
+      id:"madd", icon:"〰️", type:"rule",
+      title:{ur:"حروفِ مد", en:"Letters of Madd"},
+      rule:{ur:"تین حرف آواز کو لمبا کرتے ہیں: ا ، و ، ی", en:"Three letters stretch the sound: ا و ي"},
+      items:[
+        {arabic:"بَا", tr:"baa — long a"},
+        {arabic:"بُو", tr:"buu — long u"},
+        {arabic:"بِي", tr:"bii — long i"},
+        {arabic:"قَالَ", tr:"qaala"},
+        {arabic:"نُوحٌ", tr:"Nooh"}
+      ]
+    },
+
+    // ---- Qalqalah ----
+    {
+      id:"qalqalah", icon:"🔔", type:"rule",
+      title:{ur:"قلقلہ", en:"Qalqalah"},
+      rule:{ur:"پانچ حرف جن میں ہلکی گونج آتی ہے: ق ط ب ج د (قُطُب جَدْ)", en:"Five echo letters: ق ط ب ج د"},
+      items:[
+        {arabic:"اَقْ", tr:"aq — echo"},
+        {arabic:"اَطْ", tr:"at"},
+        {arabic:"اَبْ", tr:"ab"},
+        {arabic:"اَجْ", tr:"aj"},
+        {arabic:"اَدْ", tr:"ad"}
+      ]
     }
-    // --- FUTURE LESSONS PLUG IN HERE (joined letters, etc.) ---
   ],
 
-  // --- EMPTY on purpose. Madd / Qalqalah / Harakat rules added in Phase 2 ---
-  rules:[
-    // { id:"madd", title:{ur:"حروفِ مد", en:"Letters of Madd"}, ... }
-  ],
-
-  // --- EMPTY on purpose. Sawal-Jawab (Q&A) from Madani Qaida added later ---
+  // --- Sawal-Jawab (Q&A). Add more here anytime. ---
   quiz:[
-    // { q:{ur:"...", en:"..."}, options:[...], answer:0 }
+    { q:{ur:"یہ کون سا حرف ہے؟", en:"Which letter is this?"}, show:"ج", options:["Jeem","Seen","Meem"], answer:0 },
+    { q:{ur:"یہ کون سا حرف ہے؟", en:"Which letter is this?"}, show:"س", options:["Seen","Sheen","Saad"], answer:0 },
+    { q:{ur:"مد کے حروف کتنے ہیں؟", en:"How many Madd letters are there?"}, options:["2","3","4"], answer:1 },
+    { q:{ur:"زبر کی آواز کیا ہے؟", en:"What is the Zabar sound?"}, show:"بَ", options:["ba","bi","bu"], answer:0 },
+    { q:{ur:"پیش کی آواز؟", en:"What is the Pesh sound?"}, show:"بُ", options:["ba","bi","bu"], answer:2 },
+    { q:{ur:"قلقلہ کا ایک حرف کون سا ہے؟", en:"Which one is a Qalqalah letter?"}, options:["م","ق","ل"], answer:1 }
   ]
 };
 
@@ -631,88 +750,172 @@ function renderMenu(){
 }
 
 /* ============================================================
-   6. QAIDA ENGINE  (builds steps from CONFIG)
+   6. QAIDA HUB + LESSON ENGINE
    ============================================================ */
-function startQaida(){
-  const L = QAIDA_CONFIG.lessons[0];   // Phase 1: first lesson (letters)
-  lesson.steps = [];
-  lesson.lessonId = L.id;
+const HK={a:'\u064E', i:'\u0650', u:'\u064F'};  // zabar, zer, pesh
 
-  // opening phrases first
-  QAIDA_CONFIG.opening.forEach(o=>{
-    lesson.steps.push({type:'phrase', arabic:o.arabic, hint:o.hint});
+function openQaidaHub(){
+  const p=currentProfile();
+  const prog=(p&&p.progress)||{};
+  const wrap=document.getElementById('hubGrid');
+  wrap.innerHTML='';
+  QAIDA_CONFIG.lessons.forEach((L,i)=>{
+    const done=!!prog[L.id];
+    const c=document.createElement('div');
+    c.className='hub-card'+(done?' done':'');
+    c.innerHTML=`<div class="hub-ic">${L.icon||'📖'}</div>
+      <div class="hub-tt">${escapeHtml(langText(L.title))}</div>
+      ${done?'<div class="hub-done">✓</div>':`<div class="hub-no">${i+1}</div>`}`;
+    c.onclick=()=>startLesson(L.id);
+    wrap.appendChild(c);
   });
-  // then the letters
-  L.items.forEach(it=>{
-    lesson.steps.push({type:'letter', letter:it.letter, name:it.name, visual:it.visual, mnemonic:it.mnemonic});
-  });
+  if(QAIDA_CONFIG.quiz && QAIDA_CONFIG.quiz.length){
+    const done=!!prog['quiz'];
+    const c=document.createElement('div');
+    c.className='hub-card quiz'+(done?' done':'');
+    c.innerHTML=`<div class="hub-ic">❓</div><div class="hub-tt">Sawal-Jawab</div>
+      ${done?'<div class="hub-done">✓</div>':'<div class="hub-no">🏁</div>'}`;
+    c.onclick=()=>startQuiz();
+    wrap.appendChild(c);
+  }
+  go('qaidaHub');
+}
 
-  lesson.index = 0;
-  document.getElementById('qTitle').textContent = langText(L.title);
+function startLesson(id){
+  const L=QAIDA_CONFIG.lessons.find(x=>x.id===id); if(!L) return;
+  lesson.steps=[]; lesson.lessonId=L.id;
+  if(L.type==='letters'){
+    QAIDA_CONFIG.opening.forEach(o=>lesson.steps.push({type:'phrase',arabic:o.arabic,hint:o.hint}));
+    L.items.forEach(it=>lesson.steps.push({type:'letter',letter:it.letter,name:it.name,visual:it.visual,mnemonic:it.mnemonic}));
+  } else if(L.type==='harakat'){
+    lesson.steps.push({type:'rule',ruleText:L.intro,title:L.title});
+    L.items.forEach(it=>lesson.steps.push({type:'harakat',letter:it.letter,name:it.name}));
+  } else if(L.type==='joined'){
+    lesson.steps.push({type:'rule',ruleText:L.intro,title:L.title});
+    L.items.forEach(it=>lesson.steps.push({type:'joined',arabic:it.arabic,tr:it.tr}));
+  } else if(L.type==='rule'){
+    lesson.steps.push({type:'rule',ruleText:L.rule,title:L.title});
+    L.items.forEach(it=>lesson.steps.push({type:'example',arabic:it.arabic,tr:it.tr}));
+  }
+  lesson.index=0;
+  document.getElementById('qTitle').textContent=langText(L.title);
   go('qaida');
   renderStep();
 }
 
 function renderStep(){
-  const s = lesson.steps[lesson.index];
-  const stage = document.getElementById('qStage');
-  const lang = (currentProfile()?.lang)||'ur';
+  const s=lesson.steps[lesson.index];
+  const stage=document.getElementById('qStage');
+  const lang=(currentProfile()?.lang)||'ur';
 
-  // dots
-  const dots = document.getElementById('qDots');
-  dots.innerHTML="";
-  lesson.steps.forEach((_,i)=>{
-    const d=document.createElement('div');
-    d.className='dot'+(i<lesson.index?' done':'')+(i===lesson.index?' now':'');
-    dots.appendChild(d);
-  });
+  const dots=document.getElementById('qDots'); dots.innerHTML='';
+  lesson.steps.forEach((_,i)=>{ const d=document.createElement('div');
+    d.className='dot'+(i<lesson.index?' done':'')+(i===lesson.index?' now':''); dots.appendChild(d); });
 
-  let inner = `<button class="speaker" onclick="event.stopPropagation();playCurrent()">🔊</button>`;
+  let inner=`<button class="speaker" onclick="event.stopPropagation();playCurrent()">🔊</button>`;
   if(s.type==='phrase'){
-    inner += `<div class="kicker">${lesson.index===0?'Let\'s begin 🌙':'Bismillah'}</div>
+    inner+=`<div class="kicker">${lesson.index===0?"Let's begin 🌙":'Bismillah'}</div>
       <div class="big-phrase arabic">${s.arabic}</div>
       <div class="mnemonic"><span class="mtext ${lang==='ur'?'urdu':''}">${escapeHtml(langText(s.hint))}</span></div>
       <div class="tap-hint">Tap anywhere to hear 🔊</div>`;
-  } else {
-    inner += `<div class="kicker">Letter</div>
+  } else if(s.type==='letter'){
+    inner+=`<div class="kicker">Letter</div>
       <div class="big-letter">${s.letter}</div>
       <div class="letter-name">${s.name}</div>
       <div class="mnemonic"><span class="em">${s.visual}</span>
         <span class="mtext ${lang==='ur'?'urdu':''}">${escapeHtml(langText(s.mnemonic))}</span></div>
       <div class="tap-hint">Tap the letter to hear it 🔊</div>`;
+  } else if(s.type==='rule'){
+    inner+=`<div class="kicker">${escapeHtml(langText(s.title))}</div>
+      <div class="rule-text ${lang==='ur'?'urdu':''}">${escapeHtml(langText(s.ruleText))}</div>
+      <div class="tap-hint">Next › se aage barho</div>`;
+  } else if(s.type==='harakat'){
+    inner+=`<div class="kicker">${s.name} — zabar · zer · pesh</div>
+      <div class="harakat-row">
+        <div class="hk" onclick="event.stopPropagation();speak('${s.letter+HK.a}')"><div class="hk-l">${s.letter+HK.a}</div><div class="hk-s">a</div></div>
+        <div class="hk" onclick="event.stopPropagation();speak('${s.letter+HK.i}')"><div class="hk-l">${s.letter+HK.i}</div><div class="hk-s">i</div></div>
+        <div class="hk" onclick="event.stopPropagation();speak('${s.letter+HK.u}')"><div class="hk-l">${s.letter+HK.u}</div><div class="hk-s">u</div></div>
+      </div>
+      <div class="tap-hint">Har khaana tap karke suno 🔊</div>`;
+  } else { // joined or example
+    inner+=`<div class="kicker">${s.type==='joined'?'Read it':'Example'}</div>
+      <div class="big-phrase arabic">${s.arabic}</div>
+      <div class="letter-name" style="font-size:1.05rem;color:var(--ink-soft)">${escapeHtml(s.tr||'')}</div>
+      <div class="tap-hint">Tap to hear it 🔊</div>`;
   }
-  stage.innerHTML = inner;
+  stage.innerHTML=inner;
 
-  // nav state
-  document.getElementById('prevBtn').disabled = lesson.index===0;
-  document.getElementById('nextBtn').textContent = (lesson.index===lesson.steps.length-1) ? "Finish 🎉" : "Next ›";
-
-  // auto play once
-  setTimeout(playCurrent, 250);
+  document.getElementById('prevBtn').disabled=lesson.index===0;
+  document.getElementById('nextBtn').textContent=(lesson.index===lesson.steps.length-1)?"Finish 🎉":"Next ›";
+  setTimeout(playCurrent,250);
 }
 
 function playCurrent(){
-  const s = lesson.steps[lesson.index];
-  if(!s) return;
-  if(s.type==='phrase') speak(s.arabic);
-  else speak(s.letter);
-  const st = document.getElementById('qStage');
+  const s=lesson.steps[lesson.index]; if(!s) return;
+  const st=document.getElementById('qStage');
   st.animate([{transform:'scale(1)'},{transform:'scale(1.02)'},{transform:'scale(1)'}],{duration:260});
+  if(s.type==='phrase'||s.type==='joined'||s.type==='example') speak(s.arabic);
+  else if(s.type==='letter') speak(s.letter);
+  else if(s.type==='harakat') speak(s.letter+HK.a);
+  // rule step: no audio
 }
-function nextStep(){
-  if(lesson.index < lesson.steps.length-1){ lesson.index++; renderStep(); }
-  else finishLesson();
-}
-function prevStep(){
-  if(lesson.index>0){ lesson.index--; renderStep(); }
-}
+function nextStep(){ if(lesson.index<lesson.steps.length-1){ lesson.index++; renderStep(); } else finishLesson(); }
+function prevStep(){ if(lesson.index>0){ lesson.index--; renderStep(); } }
+
 function finishLesson(){
-  const p = currentProfile();
-  if(p){ p.progress = p.progress||{}; p.progress[lesson.lessonId]=true; save(); }
-  document.getElementById('rewardTitle').textContent = "Shabash, "+(p?.name||'Dost')+"! 🎉";
+  const p=currentProfile();
+  if(p){ p.progress=p.progress||{}; p.progress[lesson.lessonId]=true; save(); }
+  showReward("Shabash, "+(p?.name||'Dost')+"! 🎉","Lesson complete!");
+}
+
+/* ---- Quiz (Sawal-Jawab) ---- */
+let quizState={items:[],index:0,score:0};
+function startQuiz(){
+  quizState={items:QAIDA_CONFIG.quiz.slice(), index:0, score:0};
+  go('quiz'); renderQuiz();
+}
+function renderQuiz(){
+  const q=quizState.items[quizState.index];
+  const lang=(currentProfile()?.lang)||'ur';
+  document.getElementById('quizProgress').textContent=(quizState.index+1)+' / '+quizState.items.length;
+  const box=document.getElementById('quizBox');
+  box.innerHTML=`
+    <div class="q-text ${lang==='ur'?'urdu':''}">${escapeHtml(langText(q.q))}</div>
+    ${q.show?`<div class="q-show arabic" onclick="speak('${q.show}')">${q.show}</div>`:''}
+    <div class="q-options" id="qOptions"></div>`;
+  const opts=document.getElementById('qOptions');
+  q.options.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.textContent=o;
+    b.onclick=()=>answerQuiz(i,b);
+    opts.appendChild(b);
+  });
+  if(q.show) setTimeout(()=>speak(q.show),300);
+}
+function answerQuiz(i,btn){
+  if(document.querySelector('.q-opt.locked')) return;
+  const q=quizState.items[quizState.index];
+  const opts=document.querySelectorAll('.q-opt');
+  opts.forEach(o=>o.classList.add('locked'));
+  if(i===q.answer){ btn.classList.add('correct'); quizState.score++; confetti(false); }
+  else{ btn.classList.add('wrong'); opts[q.answer].classList.add('correct'); }
+  setTimeout(()=>{
+    if(quizState.index<quizState.items.length-1){ quizState.index++; renderQuiz(); }
+    else finishQuiz();
+  },1150);
+}
+function finishQuiz(){
+  const p=currentProfile();
+  if(p){ p.progress=p.progress||{}; p.progress['quiz']=true; save(); }
+  showReward("MashaAllah! 🌟","Score: "+quizState.score+" / "+quizState.items.length);
+}
+
+function showReward(title,sub){
+  document.getElementById('rewardTitle').textContent=title;
+  document.getElementById('rewardSub').textContent=sub;
   go('reward');
   confetti(true);
-  setTimeout(()=>speak((p?.name||'')+" ما شاء الله"), 300);
+  const p=currentProfile();
+  setTimeout(()=>speak((p?.name||'')+" ما شاء الله"),300);
 }
 
 /* ============================================================
