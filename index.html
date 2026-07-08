@@ -274,11 +274,31 @@ body{
 .q-opt.wrong{background:#FFE7E3;border-color:var(--coral);color:#C24A3E;}
 .q-opt.locked{cursor:default;}
 
+/* ===== Game: Huroof Hunt ===== */
+.game-hdr{display:flex;justify-content:space-between;gap:8px;margin-bottom:12px;}
+.game-stat{background:var(--white);border-radius:14px;padding:8px 12px;font-weight:800;
+  box-shadow:var(--shadow-sm);font-size:.85rem;color:var(--emerald);}
+.game-prompt{background:linear-gradient(135deg,var(--emerald),var(--emerald-l));color:#fff;
+  border-radius:22px;padding:16px;text-align:center;box-shadow:var(--shadow);margin-bottom:16px;cursor:pointer;}
+.game-prompt .gp-label{font-weight:700;opacity:.9;font-size:.85rem;}
+.game-prompt .gp-target{font-size:1.9rem;font-weight:800;margin-top:2px;}
+.bubbles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.bubble{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+  font-family:'Scheherazade New',serif;font-size:3rem;color:#fff;cursor:pointer;
+  box-shadow:var(--shadow);direction:rtl;animation:floaty 3s ease-in-out infinite;}
+.bubble:active{transform:scale(.9);}
+.bubble.pop{animation:popout .45s ease forwards;}
+.bubble.shake{animation:shakex .4s;}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes popout{to{transform:scale(1.5);opacity:0}}
+@keyframes shakex{0%,100%{transform:none}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
 @media(max-width:360px){
   .big-letter{font-size:7rem;}
   .brand{font-size:2.1rem;}
   .hk-l{font-size:3rem;}
   .q-show{font-size:4.2rem;}
+  .bubble{font-size:2.4rem;}
 }
 </style>
 </head>
@@ -354,7 +374,7 @@ body{
         <div class="ti">📖</div><div class="tt">Qaida</div>
       </div>
       <div class="tile locked"><div class="soon">soon</div><div class="ti">🕋</div><div class="tt">Quran Reading</div></div>
-      <div class="tile locked"><div class="soon">soon</div><div class="ti">🎈</div><div class="tt">Games</div></div>
+      <div class="tile" onclick="startGame()"><div class="ti">🎈</div><div class="tt">Games</div></div>
       <div class="tile locked"><div class="soon">soon</div><div class="ti">🤲</div><div class="tt">Duas &amp; Salah</div></div>
       <div class="tile locked"><div class="soon">soon</div><div class="ti">⭐</div><div class="tt">My Progress</div></div>
     </div>
@@ -399,6 +419,27 @@ body{
       <span id="quizProgress" style="margin-inline-start:auto;font-weight:800;color:var(--emerald)"></span>
     </div>
     <div class="quiz-box" id="quizBox"></div>
+  </section>
+
+  <!-- ===================== GAME: Huroof Hunt ===================== -->
+  <section class="screen" id="game">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="go('menu')">‹</button>
+      <div class="center-title" style="margin:0;font-size:1.2rem">Huroof Hunt 🎈</div>
+    </div>
+    <div id="gamePlay">
+      <div class="game-hdr">
+        <span class="game-stat" id="gRound">Round 1/10</span>
+        <span class="game-stat" id="gCombo">🔥 0</span>
+        <span class="game-stat" id="gScore">⭐ 0</span>
+      </div>
+      <div class="game-prompt" onclick="playGameTarget()">
+        <div class="gp-label">Ye harf dhoondo 🔊</div>
+        <div class="gp-target" id="gTarget">—</div>
+      </div>
+      <div class="bubbles" id="bubbles"></div>
+    </div>
+    <div id="gameResult" style="display:none"></div>
   </section>
 
   <!-- ===================== REWARD ===================== -->
@@ -915,6 +956,79 @@ function showReward(title,sub){
   go('reward');
   confetti(true);
   const p=currentProfile();
+  setTimeout(()=>speak((p?.name||'')+" ما شاء الله"),300);
+}
+
+/* ============================================================
+   6b. GAME — Huroof Hunt (find the letter you hear)
+   ============================================================ */
+let game={round:0,total:10,points:0,perfect:0,combo:0,tries:0,target:null,letters:[]};
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function startGame(){
+  game={round:0,total:10,points:0,perfect:0,combo:0,tries:0,target:null,
+    letters:QAIDA_CONFIG.lessons[0].items.slice()};
+  document.getElementById('gamePlay').style.display='';
+  document.getElementById('gameResult').style.display='none';
+  go('game');
+  nextRound();
+}
+function nextRound(){
+  if(game.round>=game.total){ showGameResult(); return; }
+  game.round++; game.tries=0;
+  const all=game.letters;
+  game.target=all[Math.floor(Math.random()*all.length)];
+  const others=shuffle(all.filter(x=>x.letter!==game.target.letter)).slice(0,5);
+  const choices=shuffle(others.concat([game.target]));
+  document.getElementById('gRound').textContent='Round '+game.round+'/'+game.total;
+  document.getElementById('gCombo').textContent='🔥 '+game.combo;
+  document.getElementById('gScore').textContent='⭐ '+game.points;
+  document.getElementById('gTarget').textContent=game.target.name;
+  const wrap=document.getElementById('bubbles'); wrap.innerHTML='';
+  const cols=['#0E7C66','#E7A928','#FF6F61','#6B46C1','#1AA184','#3B82C4'];
+  choices.forEach((c,i)=>{
+    const b=document.createElement('div'); b.className='bubble';
+    b.style.background=cols[i%cols.length];
+    b.style.animationDelay=(i*0.18)+'s';
+    b.textContent=c.letter;
+    b.onclick=()=>tapBubble(c,b);
+    wrap.appendChild(b);
+  });
+  setTimeout(playGameTarget,300);
+}
+function playGameTarget(){ if(game.target) speak(game.target.letter); }
+function tapBubble(c,el){
+  if(el.classList.contains('pop')) return;
+  if(c.letter===game.target.letter){
+    el.classList.add('pop');
+    game.points += (game.tries===0?10:5);
+    if(game.tries===0){ game.perfect++; game.combo++; } else { game.combo=0; }
+    speak(game.target.letter); confetti(false);
+    document.getElementById('gScore').textContent='⭐ '+game.points;
+    document.getElementById('gCombo').textContent='🔥 '+game.combo;
+    document.querySelectorAll('.bubble').forEach(b=>b.style.pointerEvents='none');
+    setTimeout(nextRound,700);
+  } else {
+    game.tries++; game.combo=0;
+    el.classList.add('shake'); setTimeout(()=>el.classList.remove('shake'),400);
+    document.getElementById('gCombo').textContent='🔥 0';
+  }
+}
+function showGameResult(){
+  const stars = game.perfect>=8?3 : game.perfect>=5?2 : 1;
+  const p=currentProfile();
+  if(p){ p.progress=p.progress||{}; p.progress['game']=true; save(); }
+  document.getElementById('gamePlay').style.display='none';
+  const r=document.getElementById('gameResult'); r.style.display='';
+  r.innerHTML=`
+    <div style="text-align:center;padding:24px 10px">
+      <div style="font-size:64px;letter-spacing:4px">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+      <div class="reward-title">${stars===3?'MashaAllah!':'Shabash!'} 🎉</div>
+      <div class="sub">Score: ⭐ ${game.points} &nbsp;·&nbsp; Perfect: ${game.perfect}/${game.total}</div>
+      <button class="btn gold block" style="margin-top:18px" onclick="startGame()">Play again 🔁</button>
+      <button class="btn ghost block" style="margin-top:10px" onclick="go('menu')">Back to menu 🏠</button>
+    </div>`;
+  confetti(true);
   setTimeout(()=>speak((p?.name||'')+" ما شاء الله"),300);
 }
 
