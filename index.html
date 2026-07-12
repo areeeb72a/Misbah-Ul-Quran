@@ -293,6 +293,41 @@ body{
 @keyframes popout{to{transform:scale(1.5);opacity:0}}
 @keyframes shakex{0%,100%{transform:none}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
 
+/* ===== Nazra Reader ===== */
+.search{width:100%;padding:13px 16px;border-radius:16px;border:2px solid #EAD9B4;background:var(--white);
+  font-family:inherit;font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:12px;}
+.loading{text-align:center;color:var(--ink-soft);font-weight:700;padding:30px;}
+.surah-row{background:var(--white);border-radius:18px;box-shadow:var(--shadow-sm);padding:12px 14px;
+  margin-bottom:9px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .08s;}
+.surah-row:active{transform:scale(.98);}
+.s-no{width:36px;height:36px;border-radius:11px;background:var(--cream-2);display:grid;place-items:center;
+  font-weight:800;color:var(--emerald);font-size:.9rem;flex-shrink:0;}
+.s-mid{flex:1;min-width:0;}
+.s-name{font-weight:800;color:var(--ink);}
+.s-sub{font-size:.76rem;color:var(--ink-soft);font-weight:600;}
+.s-ar{font-family:'Scheherazade New',serif;font-size:1.5rem;color:var(--emerald);direction:rtl;}
+.last-read{background:linear-gradient(135deg,var(--emerald),var(--emerald-l));color:#fff;border-radius:18px;
+  padding:14px 16px;margin-bottom:12px;cursor:pointer;box-shadow:var(--shadow);}
+.last-read .lr-t{font-size:.75rem;opacity:.9;font-weight:700;}
+.last-read .lr-n{font-weight:800;font-size:1.1rem;}
+
+.reader-bar{display:flex;gap:8px;margin-bottom:12px;}
+.rb{flex:1;border:none;background:var(--white);border-radius:14px;padding:11px 8px;font-family:inherit;
+  font-weight:800;font-size:.82rem;color:var(--emerald);box-shadow:var(--shadow-sm);cursor:pointer;}
+.rb:active{transform:scale(.95);}
+.rb.on{background:var(--emerald);color:#fff;}
+.ayah{background:var(--white);border-radius:20px;box-shadow:var(--shadow-sm);padding:16px;margin-bottom:11px;
+  cursor:pointer;border:3px solid transparent;transition:border-color .2s;}
+.ayah.playing{border-color:var(--gold);background:#FFFCF3;}
+.ayah-ar{font-family:'Scheherazade New',serif;font-size:2rem;direction:rtl;color:var(--ink);line-height:2.15;
+  text-align:right;}
+.ayah-no{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;
+  background:var(--cream-2);color:var(--emerald);font-family:'Baloo 2',sans-serif;font-size:.72rem;
+  font-weight:800;margin-top:8px;}
+.bismillah{font-family:'Scheherazade New',serif;font-size:1.9rem;color:var(--emerald);direction:rtl;
+  text-align:center;background:var(--white);border-radius:20px;padding:16px;margin-bottom:11px;
+  box-shadow:var(--shadow-sm);}
+
 @media(max-width:360px){
   .big-letter{font-size:7rem;}
   .brand{font-size:2.1rem;}
@@ -373,7 +408,7 @@ body{
       <div class="tile qaida" onclick="openQaidaHub()">
         <div class="ti">📖</div><div class="tt">Qaida</div>
       </div>
-      <div class="tile locked"><div class="soon">soon</div><div class="ti">🕋</div><div class="tt">Quran Reading</div></div>
+      <div class="tile" onclick="openNazra()"><div class="ti">🕋</div><div class="tt">Quran Reading</div></div>
       <div class="tile" onclick="startGame()"><div class="ti">🎈</div><div class="tt">Games</div></div>
       <div class="tile locked"><div class="soon">soon</div><div class="ti">🤲</div><div class="tt">Duas &amp; Salah</div></div>
       <div class="tile locked"><div class="soon">soon</div><div class="ti">⭐</div><div class="tt">My Progress</div></div>
@@ -421,6 +456,32 @@ body{
     <div class="quiz-box" id="quizBox"></div>
   </section>
 
+  <!-- ===================== NAZRA: SURAH LIST ===================== -->
+  <section class="screen" id="nazra">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="go('menu')">‹</button>
+      <div class="center-title" style="margin:0;font-size:1.2rem">Quran — Nazra</div>
+    </div>
+    <div id="lastRead"></div>
+    <input class="search" id="surahSearch" placeholder="Surah dhoondein… (naam ya number)" oninput="renderSurahList()"/>
+    <div id="surahList"><div class="loading">Loading surahs… ⏳</div></div>
+  </section>
+
+  <!-- ===================== NAZRA: READER ===================== -->
+  <section class="screen" id="reader">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="stopAudio();openNazra()">‹</button>
+      <div class="center-title" id="rTitle" style="margin:0;font-size:1.1rem">Surah</div>
+      <button class="iconbtn" onclick="openReaderSettings()">⚙</button>
+    </div>
+    <div class="reader-bar">
+      <button class="rb" onclick="playFrom(0)">▶ Start</button>
+      <button class="rb" id="rbAuto" onclick="toggleAuto()">🔁 Auto: off</button>
+      <button class="rb" id="rbRep" onclick="cycleRepeat()">Repeat: 1x</button>
+    </div>
+    <div id="ayahList"><div class="loading">Loading… ⏳</div></div>
+  </section>
+
   <!-- ===================== GAME: Huroof Hunt ===================== -->
   <section class="screen" id="game">
     <div class="topbar">
@@ -450,6 +511,27 @@ body{
     <button class="btn gold" style="min-width:180px;margin-top:10px" onclick="openQaidaHub()">Back to Qaida 🏠</button>
   </section>
 
+</div>
+
+<!-- ===================== READER SETTINGS ===================== -->
+<div class="modal-overlay" id="readerSettings">
+  <div class="modal-card" style="text-align:start">
+    <div style="font-weight:800;color:var(--emerald);font-size:1.15rem;margin-bottom:14px;text-align:center">Reader settings ⚙</div>
+    <div style="font-weight:700;margin-bottom:6px">Qari (reciter)</div>
+    <select id="reciterSel" onchange="setReciter(this.value)"
+      style="width:100%;padding:12px 14px;border-radius:14px;border:2px solid #EAD9B4;font-family:inherit;font-weight:700;font-size:1rem;margin-bottom:16px">
+      <option value="ar.husary">Mahmoud Al-Husary (seekhne ke liye best)</option>
+      <option value="ar.alafasy">Mishary Alafasy</option>
+      <option value="ar.abdulbasitmurattal">Abdul Basit (Murattal)</option>
+      <option value="ar.minshawi">Al-Minshawi</option>
+    </select>
+    <div style="font-weight:700;margin-bottom:6px">Arabic text size</div>
+    <div style="display:flex;gap:10px;margin-bottom:18px">
+      <button class="btn ghost" style="flex:1" onclick="setFont(-4)">A −</button>
+      <button class="btn ghost" style="flex:1" onclick="setFont(4)">A +</button>
+    </div>
+    <button class="btn block" onclick="document.getElementById('readerSettings').classList.remove('show')">Done ✓</button>
+  </div>
 </div>
 
 <!-- ===================== CONFIRM MODAL ===================== -->
@@ -1030,6 +1112,172 @@ function showGameResult(){
     </div>`;
   confetti(true);
   setTimeout(()=>speak((p?.name||'')+" ما شاء الله"),300);
+}
+
+/* ============================================================
+   6c. NAZRA READER  (Al Quran Cloud API — free, no key)
+   ============================================================ */
+const QAPI='https://api.alquran.cloud/v1';
+let surahs=[];                 // 114 surah meta
+let nz={ surah:null, ayahs:[], playing:-1, auto:false, repeat:1, left:0 };
+let audioEl=new Audio();
+let settings=loadSettings();
+
+function loadSettings(){
+  try{ return JSON.parse(localStorage.getItem('misbah.reader'))||{reciter:'ar.husary',font:32}; }
+  catch(e){ return {reciter:'ar.husary',font:32}; }
+}
+function saveSettings(){ localStorage.setItem('misbah.reader', JSON.stringify(settings)); }
+function openReaderSettings(){
+  document.getElementById('reciterSel').value=settings.reciter;
+  document.getElementById('readerSettings').classList.add('show');
+}
+function setReciter(v){ settings.reciter=v; saveSettings(); if(nz.surah) loadSurah(nz.surah.number, true); }
+function setFont(d){
+  settings.font=Math.max(20,Math.min(56,settings.font+d)); saveSettings();
+  document.querySelectorAll('.ayah-ar').forEach(e=>e.style.fontSize=settings.font+'px');
+}
+
+/* ---- cache helper (offline-friendly) ---- */
+function cacheGet(k){ try{ return JSON.parse(localStorage.getItem('misbah.q.'+k)); }catch(e){ return null; } }
+function cacheSet(k,v){ try{ localStorage.setItem('misbah.q.'+k, JSON.stringify(v)); }catch(e){/* quota */} }
+
+/* ---- surah list ---- */
+async function openNazra(){
+  go('nazra');
+  renderLastRead();
+  if(!surahs.length){
+    const cached=cacheGet('surahs');
+    if(cached){ surahs=cached; renderSurahList(); }
+    else{
+      try{
+        const r=await fetch(QAPI+'/surah'); const j=await r.json();
+        surahs=j.data; cacheSet('surahs',surahs);
+      }catch(e){
+        document.getElementById('surahList').innerHTML='<div class="loading">Internet nahi hai 😕<br>Pehli baar surah list ke liye internet chahiye.</div>';
+        return;
+      }
+    }
+  }
+  renderSurahList();
+}
+function renderSurahList(){
+  const q=(document.getElementById('surahSearch').value||'').trim().toLowerCase();
+  const wrap=document.getElementById('surahList');
+  const list=surahs.filter(s=> !q || s.englishName.toLowerCase().includes(q) ||
+      String(s.number)===q || (s.englishNameTranslation||'').toLowerCase().includes(q));
+  if(!list.length){ wrap.innerHTML='<div class="loading">Koi surah nahi mili</div>'; return; }
+  wrap.innerHTML='';
+  list.forEach(s=>{
+    const d=document.createElement('div'); d.className='surah-row';
+    d.innerHTML=`<div class="s-no">${s.number}</div>
+      <div class="s-mid"><div class="s-name">${escapeHtml(s.englishName)}</div>
+        <div class="s-sub">${escapeHtml(s.englishNameTranslation||'')} · ${s.numberOfAyahs} ayah</div></div>
+      <div class="s-ar">${s.name}</div>`;
+    d.onclick=()=>loadSurah(s.number);
+    wrap.appendChild(d);
+  });
+}
+function renderLastRead(){
+  const p=currentProfile();
+  const lr=p&&p.lastRead;
+  const box=document.getElementById('lastRead');
+  if(!lr){ box.innerHTML=''; return; }
+  box.innerHTML=`<div class="last-read" onclick="loadSurah(${lr.surah},false,${lr.ayah})">
+      <div class="lr-t">📖 Jahan chhoda tha</div>
+      <div class="lr-n">${escapeHtml(lr.name)} · Ayah ${lr.ayah+1}</div></div>`;
+}
+
+/* ---- load & render a surah ---- */
+async function loadSurah(n, silent, jumpTo){
+  stopAudio();
+  const key='s'+n+'.'+settings.reciter;
+  go('reader');
+  document.getElementById('ayahList').innerHTML='<div class="loading">Loading… ⏳</div>';
+  let data=cacheGet(key);
+  if(!data){
+    try{
+      const r=await fetch(QAPI+'/surah/'+n+'/editions/quran-uthmani,'+settings.reciter);
+      const j=await r.json();
+      const text=j.data[0], aud=j.data[1];
+      data={ number:text.number, name:text.name, englishName:text.englishName,
+             ayahs:text.ayahs.map((a,i)=>({ n:a.numberInSurah, text:a.text, audio:(aud.ayahs[i]||{}).audio })) };
+      cacheSet(key,data);
+    }catch(e){
+      document.getElementById('ayahList').innerHTML='<div class="loading">Load nahi hua 😕<br>Internet check karein.</div>';
+      return;
+    }
+  }
+  nz.surah={number:data.number,name:data.englishName};
+  nz.ayahs=data.ayahs; nz.playing=-1;
+  document.getElementById('rTitle').textContent=data.englishName+' · '+data.name;
+  renderAyahs(n);
+  if(typeof jumpTo==='number'){
+    setTimeout(()=>{ const el=document.getElementById('ay'+jumpTo); if(el) el.scrollIntoView({block:'center'}); },200);
+  }
+}
+function renderAyahs(n){
+  const wrap=document.getElementById('ayahList');
+  wrap.innerHTML='';
+  // Bismillah header (all surahs except 1 and 9 — surah 1 already has it as ayah 1)
+  if(n!==1 && n!==9){
+    const b=document.createElement('div'); b.className='bismillah';
+    b.textContent='بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ';
+    wrap.appendChild(b);
+  }
+  nz.ayahs.forEach((a,i)=>{
+    const d=document.createElement('div'); d.className='ayah'; d.id='ay'+i;
+    d.innerHTML=`<div class="ayah-ar" style="font-size:${settings.font}px">${a.text}</div>
+      <div class="ayah-no">${a.n}</div>`;
+    d.onclick=()=>playFrom(i);
+    wrap.appendChild(d);
+  });
+}
+
+/* ---- audio playback ---- */
+function playFrom(i){
+  if(i>=nz.ayahs.length){ stopAudio(); return; }
+  const a=nz.ayahs[i];
+  if(!a.audio){ return; }
+  nz.playing=i; nz.left=nz.repeat;
+  markPlaying(i);
+  saveLastRead(i);
+  audioEl.src=a.audio;
+  audioEl.play().catch(()=>{});
+}
+audioEl.onended=()=>{
+  if(nz.playing<0) return;
+  nz.left--;
+  if(nz.left>0){ audioEl.currentTime=0; audioEl.play().catch(()=>{}); return; }  // repeat same ayah
+  if(nz.auto && nz.playing<nz.ayahs.length-1){ playFrom(nz.playing+1); }
+  else{ stopAudio(); }
+};
+function markPlaying(i){
+  document.querySelectorAll('.ayah').forEach(e=>e.classList.remove('playing'));
+  const el=document.getElementById('ay'+i);
+  if(el){ el.classList.add('playing'); el.scrollIntoView({behavior:'smooth',block:'center'}); }
+}
+function stopAudio(){
+  try{ audioEl.pause(); }catch(e){}
+  nz.playing=-1;
+  document.querySelectorAll('.ayah').forEach(e=>e.classList.remove('playing'));
+}
+function toggleAuto(){
+  nz.auto=!nz.auto;
+  const b=document.getElementById('rbAuto');
+  b.textContent='🔁 Auto: '+(nz.auto?'on':'off');
+  b.classList.toggle('on',nz.auto);
+}
+function cycleRepeat(){
+  nz.repeat = nz.repeat===1?3 : nz.repeat===3?5 : 1;
+  const b=document.getElementById('rbRep');
+  b.textContent='Repeat: '+nz.repeat+'x';
+  b.classList.toggle('on',nz.repeat>1);
+}
+function saveLastRead(i){
+  const p=currentProfile(); if(!p||!nz.surah) return;
+  p.lastRead={surah:nz.surah.number,name:nz.surah.name,ayah:i};
+  save();
 }
 
 /* ============================================================

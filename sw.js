@@ -1,6 +1,6 @@
 /* Misbah-ul-Quran — service worker
    Bump CACHE version whenever you update the app so users get the new build. */
-const CACHE = 'misbah-v3';
+const CACHE = 'misbah-v4';
 
 const SHELL = [
   './',
@@ -32,6 +32,10 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
+
+  // Quran API + audio CDN: always go to network (never cache/intercept)
+  const u = new URL(req.url);
+  if (u.host.includes('alquran.cloud') || u.host.includes('islamic.network')) return;
 
   e.respondWith(
     caches.match(req).then((hit) => {
