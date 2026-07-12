@@ -362,6 +362,26 @@ body{
 .mem-nav .rb{flex:1;padding:13px;}
 .mem-ayah.known{border:3px solid var(--emerald-l);}
 
+/* ===== Duas / Progress ===== */
+.done-tick{color:var(--emerald-l);font-weight:800;font-size:1.2rem;}
+.prog-hero{background:linear-gradient(135deg,var(--emerald),var(--emerald-l));color:#fff;border-radius:26px;
+  padding:22px 20px;text-align:center;box-shadow:var(--shadow);margin-bottom:14px;}
+.ph-star{font-size:2rem;font-weight:800;}
+.ph-name{font-weight:700;opacity:.92;margin-bottom:12px;}
+.ph-bar{height:12px;background:rgba(255,255,255,.25);border-radius:20px;overflow:hidden;}
+.ph-fill{height:100%;background:var(--gold-l);border-radius:20px;transition:width .6s ease;}
+.ph-sub{font-size:.8rem;font-weight:700;opacity:.9;margin-top:8px;}
+.prog-cards{display:flex;gap:10px;margin-bottom:6px;}
+.pc{flex:1;background:var(--white);border-radius:18px;box-shadow:var(--shadow-sm);padding:14px 8px;text-align:center;}
+.pc b{display:block;font-size:1.3rem;color:var(--emerald);}
+.pc span{font-size:.7rem;color:var(--ink-soft);font-weight:700;}
+.prog-row{background:var(--white);border-radius:16px;box-shadow:var(--shadow-sm);padding:12px 14px;
+  margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.prog-row.done{background:linear-gradient(135deg,#E6F3EF,#fff);}
+.pr-ic{font-size:22px;width:30px;text-align:center;}
+.pr-t{flex:1;font-weight:800;color:var(--ink);font-size:.95rem;}
+.pr-x{font-size:1.05rem;}
+
 @media(max-width:360px){
   .big-letter{font-size:7rem;}
   .brand{font-size:2.1rem;}
@@ -445,8 +465,8 @@ body{
       <div class="tile" onclick="openNazra()"><div class="ti">🕋</div><div class="tt">Quran Reading</div></div>
       <div class="tile" onclick="openHifz()"><div class="ti">🧠</div><div class="tt">Hifz</div></div>
       <div class="tile" onclick="startGame()"><div class="ti">🎈</div><div class="tt">Games</div></div>
-      <div class="tile locked"><div class="soon">soon</div><div class="ti">🤲</div><div class="tt">Duas &amp; Salah</div></div>
-      <div class="tile locked"><div class="soon">soon</div><div class="ti">⭐</div><div class="tt">My Progress</div></div>
+      <div class="tile" onclick="openDuas()"><div class="ti">🤲</div><div class="tt">Duas &amp; Salah</div></div>
+      <div class="tile" onclick="openProgress()"><div class="ti">⭐</div><div class="tt">My Progress</div></div>
     </div>
   </section>
 
@@ -573,6 +593,68 @@ body{
       <button class="rb" onclick="memPrev()">‹ Back</button>
       <button class="rb" onclick="memNext()">Next ›</button>
     </div>
+  </section>
+
+  <!-- ===================== DUAS & SALAH HUB ===================== -->
+  <section class="screen" id="duas">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="go('menu')">‹</button>
+      <div class="center-title" style="margin:0;font-size:1.2rem">Duas &amp; Salah 🤲</div>
+    </div>
+    <div class="hz-card sabaq" onclick="openSalah()" style="margin-bottom:14px">
+      <div class="hz-ic">🕌</div>
+      <div><div class="hz-t">Namaz seekho</div><div class="hz-s">Step by step, shuru se aakhir tak</div></div>
+    </div>
+    <div class="section-head">Masnoon Duain</div>
+    <div id="duaList"></div>
+  </section>
+
+  <!-- ===================== DUA CARD ===================== -->
+  <section class="screen" id="duaCard">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="openDuas()">‹</button>
+      <div class="center-title" id="dTitle" style="margin:0;font-size:1.1rem">Dua</div>
+      <span id="dCount" style="margin-inline-start:auto;font-weight:800;color:var(--emerald)"></span>
+    </div>
+    <div class="lesson-wrap">
+      <div class="stage" id="dStage" onclick="playDua()">
+        <button class="speaker" onclick="event.stopPropagation();playDua()">🔊</button>
+      </div>
+      <div class="nav-row">
+        <button class="btn ghost" id="dPrev" onclick="duaPrev()">‹ Back</button>
+        <button class="btn gold" onclick="playDua()">Repeat 🔁</button>
+        <button class="btn" id="dNext" onclick="duaNext()">Next ›</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SALAH GUIDE ===================== -->
+  <section class="screen" id="salah">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="openDuas()">‹</button>
+      <div class="center-title" style="margin:0;font-size:1.1rem">Namaz 🕌</div>
+      <span id="slCount" style="margin-inline-start:auto;font-weight:800;color:var(--emerald)"></span>
+    </div>
+    <div class="progress-dots" id="slDots"></div>
+    <div class="lesson-wrap">
+      <div class="stage" id="slStage" onclick="playSalah()">
+        <button class="speaker" onclick="event.stopPropagation();playSalah()">🔊</button>
+      </div>
+      <div class="nav-row">
+        <button class="btn ghost" id="slPrev" onclick="salahPrev()">‹ Back</button>
+        <button class="btn gold" onclick="playSalah()">Repeat 🔁</button>
+        <button class="btn" id="slNext" onclick="salahNext()">Next ›</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MY PROGRESS ===================== -->
+  <section class="screen" id="progress">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="go('menu')">‹</button>
+      <div class="center-title" style="margin:0;font-size:1.2rem">My Progress ⭐</div>
+    </div>
+    <div id="progBody"></div>
   </section>
 
   <!-- ===================== GAME: Huroof Hunt ===================== -->
@@ -762,6 +844,69 @@ const QAIDA_CONFIG = {
     { q:{ur:"قلقلہ کا ایک حرف کون سا ہے؟", en:"Which one is a Qalqalah letter?"}, options:["م","ق","ل"], answer:1 }
   ]
 };
+
+/* ============================================================
+   1b. DUAS + SALAH CONFIG — add/edit freely, UI won't change.
+   ============================================================ */
+const DUAS = [
+  { id:"d1", icon:"🍽️", title:{ur:"کھانے سے پہلے", en:"Before eating"},
+    arabic:"بِسْمِ اللَّهِ وَعَلَىٰ بَرَكَةِ اللَّهِ",
+    tr:"Bismillahi wa 'ala barakatillah",
+    mean:{ur:"اللہ کے نام سے اور اللہ کی برکت سے", en:"In the name of Allah and with Allah's blessing"} },
+  { id:"d2", icon:"✅", title:{ur:"کھانے کے بعد", en:"After eating"},
+    arabic:"اَلْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ",
+    tr:"Alhamdulillahilladhi at'amana wa saqana wa ja'alana muslimeen",
+    mean:{ur:"سب تعریف اللہ کے لیے جس نے ہمیں کھلایا، پلایا اور مسلمان بنایا", en:"Praise be to Allah who fed us, gave us drink, and made us Muslims"} },
+  { id:"d3", icon:"😴", title:{ur:"سونے سے پہلے", en:"Before sleeping"},
+    arabic:"بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
+    tr:"Bismika Allahumma amootu wa ahya",
+    mean:{ur:"اے اللہ! تیرے نام سے میں مرتا اور جیتا ہوں", en:"In Your name, O Allah, I die and I live"} },
+  { id:"d4", icon:"🌅", title:{ur:"جاگنے کے بعد", en:"After waking up"},
+    arabic:"اَلْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ",
+    tr:"Alhamdulillahilladhi ahyana ba'da ma amatana wa ilayhin-nushoor",
+    mean:{ur:"سب تعریف اللہ کے لیے جس نے موت کے بعد ہمیں زندہ کیا، اور اسی کی طرف لوٹنا ہے", en:"Praise be to Allah who gave us life after death, and to Him is the return"} },
+  { id:"d5", icon:"🚪", title:{ur:"گھر سے نکلتے وقت", en:"Leaving the house"},
+    arabic:"بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ",
+    tr:"Bismillahi tawakkaltu 'alallah",
+    mean:{ur:"اللہ کے نام سے، میں نے اللہ پر بھروسہ کیا", en:"In the name of Allah, I put my trust in Allah"} },
+  { id:"d6", icon:"🚿", title:{ur:"بیت الخلاء میں جاتے وقت", en:"Entering the washroom"},
+    arabic:"اَللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ",
+    tr:"Allahumma inni a'oodhu bika minal khubuthi wal khaba'ith",
+    mean:{ur:"اے اللہ! میں تیری پناہ مانگتا ہوں بری چیزوں سے", en:"O Allah, I seek Your protection from evil"} },
+  { id:"d7", icon:"📖", title:{ur:"علم میں اضافے کی دعا", en:"Dua for knowledge"},
+    arabic:"رَبِّ زِدْنِي عِلْمًا",
+    tr:"Rabbi zidni 'ilma",
+    mean:{ur:"اے میرے رب! میرے علم میں اضافہ فرما", en:"My Lord, increase me in knowledge"} },
+  { id:"d8", icon:"🚗", title:{ur:"سواری پر بیٹھتے وقت", en:"Riding a vehicle"},
+    arabic:"سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَٰذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ",
+    tr:"Subhanalladhi sakhkhara lana hadha wa ma kunna lahu muqrineen",
+    mean:{ur:"پاک ہے وہ ذات جس نے اسے ہمارے بس میں کیا", en:"Glory to Him who subjected this to us"} }
+];
+
+const SALAH_STEPS = [
+  { icon:"🧼", title:{ur:"وضو", en:"Wudu"},
+    say:{ur:"پہلے وضو کریں — ہاتھ، منہ، بازو، سر اور پاؤں دھوئیں", en:"First make wudu — wash hands, face, arms, wipe head, wash feet"} },
+  { icon:"🧭", title:{ur:"نیت اور قبلہ", en:"Intention & Qibla"},
+    say:{ur:"قبلہ کی طرف کھڑے ہوں اور دل میں نیت کریں", en:"Face the Qibla and make the intention in your heart"} },
+  { icon:"🙌", title:{ur:"تکبیرِ تحریمہ", en:"Takbir"}, arabic:"اَللَّهُ أَكْبَرُ",
+    say:{ur:"دونوں ہاتھ کانوں تک اٹھا کر کہیں: اللہ اکبر", en:"Raise both hands to your ears and say: Allahu Akbar"} },
+  { icon:"🧍", title:{ur:"قیام — سورۃ الفاتحہ", en:"Qiyam — Al-Fatiha"}, arabic:"اَلْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
+    say:{ur:"ہاتھ باندھ کر سورۃ الفاتحہ پڑھیں، پھر کوئی سورت", en:"Fold your hands, recite Al-Fatiha, then a short surah"} },
+  { icon:"🙇", title:{ur:"رکوع", en:"Ruku"}, arabic:"سُبْحَانَ رَبِّيَ الْعَظِيمِ",
+    say:{ur:"جھک کر تین بار کہیں: سبحان ربی العظیم", en:"Bow down and say three times: Subhana Rabbiyal 'Azeem"} },
+  { icon:"🧍", title:{ur:"قومہ", en:"Standing up"}, arabic:"سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ",
+    say:{ur:"سیدھے کھڑے ہوں: سمع اللہ لمن حمدہ — ربنا لک الحمد", en:"Stand up straight: Sami'Allahu liman hamidah — Rabbana lakal hamd"} },
+  { icon:"🤲", title:{ur:"سجدہ", en:"Sajdah"}, arabic:"سُبْحَانَ رَبِّيَ الْأَعْلَىٰ",
+    say:{ur:"سجدے میں جائیں اور تین بار کہیں: سبحان ربی الاعلیٰ", en:"Go into sajdah and say three times: Subhana Rabbiyal A'la"} },
+  { icon:"🧎", title:{ur:"جلسہ", en:"Sitting"}, arabic:"رَبِّ اغْفِرْ لِي",
+    say:{ur:"دو سجدوں کے درمیان بیٹھیں: رب اغفر لی", en:"Sit between the two sajdahs: Rabbighfir li"} },
+  { icon:"🧎", title:{ur:"تشہد", en:"Tashahhud"}, arabic:"اَلتَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ",
+    say:{ur:"بیٹھ کر تشہد پڑھیں، اور شہادت کی انگلی اٹھائیں", en:"Sit and recite the Tashahhud, raising your index finger"} },
+  { icon:"🌸", title:{ur:"درود شریف", en:"Durood"}, arabic:"اَللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ",
+    say:{ur:"نبی ﷺ پر درود بھیجیں", en:"Send blessings upon the Prophet ﷺ"} },
+  { icon:"👋", title:{ur:"سلام", en:"Salam"}, arabic:"اَلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ",
+    say:{ur:"دائیں پھر بائیں طرف سلام پھیریں — نماز مکمل!", en:"Turn right then left saying Salam — prayer complete!"} }
+];
 
 /* ============================================================
    2. STATE + STORAGE
@@ -1547,6 +1692,130 @@ function finishHifz(){
   const H=hifzData();
   const done=hz.list.filter(a=>H[a.key]&&H[a.key].known).length;
   showReward('MashaAllah! 🌟', done+' / '+hz.list.length+' ayat yaad', 'hifz');
+}
+
+/* ============================================================
+   6e. DUAS & SALAH
+   ============================================================ */
+let dua={index:0};
+function openDuas(){
+  const p=currentProfile(); const done=(p&&p.duasDone)||{};
+  const wrap=document.getElementById('duaList'); wrap.innerHTML='';
+  DUAS.forEach((d,i)=>{
+    const row=document.createElement('div'); row.className='surah-row';
+    row.innerHTML=`<div class="s-no">${d.icon}</div>
+      <div class="s-mid"><div class="s-name">${escapeHtml(langText(d.title))}</div>
+        <div class="s-sub">${escapeHtml(d.tr)}</div></div>
+      ${done[d.id]?'<div class="done-tick">✓</div>':''}`;
+    row.onclick=()=>openDua(i);
+    wrap.appendChild(row);
+  });
+  go('duas');
+}
+function openDua(i){
+  dua.index=i; go('duaCard'); renderDua();
+}
+function renderDua(){
+  const d=DUAS[dua.index];
+  const lang=(currentProfile()?.lang)||'ur';
+  document.getElementById('dTitle').textContent=langText(d.title);
+  document.getElementById('dCount').textContent=(dua.index+1)+' / '+DUAS.length;
+  document.getElementById('dStage').innerHTML=`
+    <button class="speaker" onclick="event.stopPropagation();playDua()">🔊</button>
+    <div style="font-size:44px">${d.icon}</div>
+    <div class="big-phrase arabic">${d.arabic}</div>
+    <div class="letter-name" style="font-size:.95rem;color:var(--ink-soft)">${escapeHtml(d.tr)}</div>
+    <div class="mnemonic"><span class="mtext ${lang==='ur'?'urdu':''}">${escapeHtml(langText(d.mean))}</span></div>
+    <div class="tap-hint">Tap karke suno 🔊</div>`;
+  document.getElementById('dPrev').disabled=dua.index===0;
+  document.getElementById('dNext').textContent=(dua.index===DUAS.length-1)?'Finish 🎉':'Next ›';
+  // mark as seen
+  const p=currentProfile();
+  if(p){ p.duasDone=p.duasDone||{}; p.duasDone[d.id]=true; save(); }
+  setTimeout(playDua,250);
+}
+function playDua(){ speak(DUAS[dua.index].arabic); }
+function duaNext(){
+  if(dua.index<DUAS.length-1){ dua.index++; renderDua(); }
+  else showReward('MashaAllah! 🌟','Saari duain complete!','menu');
+}
+function duaPrev(){ if(dua.index>0){ dua.index--; renderDua(); } }
+
+/* ---- Salah guide ---- */
+let sl={index:0};
+function openSalah(){ sl.index=0; go('salah'); renderSalah(); }
+function renderSalah(){
+  const s=SALAH_STEPS[sl.index];
+  const lang=(currentProfile()?.lang)||'ur';
+  document.getElementById('slCount').textContent=(sl.index+1)+' / '+SALAH_STEPS.length;
+  const dots=document.getElementById('slDots'); dots.innerHTML='';
+  SALAH_STEPS.forEach((_,i)=>{ const d=document.createElement('div');
+    d.className='dot'+(i<sl.index?' done':'')+(i===sl.index?' now':''); dots.appendChild(d); });
+  document.getElementById('slStage').innerHTML=`
+    ${s.arabic?`<button class="speaker" onclick="event.stopPropagation();playSalah()">🔊</button>`:''}
+    <div style="font-size:52px">${s.icon}</div>
+    <div class="letter-name" style="font-size:1.3rem">${escapeHtml(langText(s.title))}</div>
+    ${s.arabic?`<div class="big-phrase arabic" style="font-size:2.2rem">${s.arabic}</div>`:''}
+    <div class="mnemonic"><span class="mtext ${lang==='ur'?'urdu':''}">${escapeHtml(langText(s.say))}</span></div>`;
+  document.getElementById('slPrev').disabled=sl.index===0;
+  document.getElementById('slNext').textContent=(sl.index===SALAH_STEPS.length-1)?'Finish 🎉':'Next ›';
+  if(s.arabic) setTimeout(playSalah,250);
+}
+function playSalah(){ const s=SALAH_STEPS[sl.index]; if(s.arabic) speak(s.arabic); }
+function salahNext(){
+  if(sl.index<SALAH_STEPS.length-1){ sl.index++; renderSalah(); }
+  else{
+    const p=currentProfile();
+    if(p){ p.progress=p.progress||{}; p.progress['salah']=true; save(); }
+    showReward('MashaAllah! 🌟','Namaz ke saare steps seekh liye!','menu');
+  }
+}
+function salahPrev(){ if(sl.index>0){ sl.index--; renderSalah(); } }
+
+/* ============================================================
+   6f. MY PROGRESS
+   ============================================================ */
+function openProgress(){
+  const p=currentProfile(); if(!p){ go('profiles'); return; }
+  const prog=p.progress||{};
+  const H=p.hifz||{};
+  const hifzKnown=Object.keys(H).filter(k=>H[k].known).length;
+  const duasSeen=Object.keys(p.duasDone||{}).length;
+  const lessonsDone=QAIDA_CONFIG.lessons.filter(L=>prog[L.id]).length;
+  const totalLessons=QAIDA_CONFIG.lessons.length;
+  const pct=Math.round(lessonsDone/totalLessons*100);
+
+  // stars: qaida lessons + quiz + game + salah + hifz
+  let stars=lessonsDone + (prog.quiz?1:0) + (prog.game?1:0) + (prog.salah?1:0) + Math.floor(hifzKnown/5);
+
+  const rows=[
+    ...QAIDA_CONFIG.lessons.map(L=>({t:langText(L.title), ic:L.icon||'📖', done:!!prog[L.id]})),
+    {t:'Sawal-Jawab', ic:'❓', done:!!prog.quiz},
+    {t:'Huroof Hunt game', ic:'🎈', done:!!prog.game},
+    {t:'Namaz seekhi', ic:'🕌', done:!!prog.salah}
+  ];
+
+  document.getElementById('progBody').innerHTML=`
+    <div class="prog-hero">
+      <div class="ph-star">⭐ ${stars}</div>
+      <div class="ph-name">${escapeHtml(p.name)}</div>
+      <div class="ph-bar"><div class="ph-fill" style="width:${pct}%"></div></div>
+      <div class="ph-sub">Qaida: ${lessonsDone} / ${totalLessons} lessons (${pct}%)</div>
+    </div>
+
+    <div class="prog-cards">
+      <div class="pc"><b>${hifzKnown}</b><span>Ayat yaad 🧠</span></div>
+      <div class="pc"><b>${duasSeen}/${DUAS.length}</b><span>Duain 🤲</span></div>
+      <div class="pc"><b>${p.lastRead?('S'+p.lastRead.surah):'—'}</b><span>Last read 📖</span></div>
+    </div>
+
+    <div class="section-head">Milestones</div>
+    ${rows.map(r=>`<div class="prog-row ${r.done?'done':''}">
+        <div class="pr-ic">${r.ic}</div>
+        <div class="pr-t">${escapeHtml(r.t)}</div>
+        <div class="pr-x">${r.done?'✅':'⏳'}</div>
+      </div>`).join('')}`;
+  go('progress');
 }
 
 /* ============================================================
