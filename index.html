@@ -328,6 +328,40 @@ body{
   text-align:center;background:var(--white);border-radius:20px;padding:16px;margin-bottom:11px;
   box-shadow:var(--shadow-sm);}
 
+/* ===== Hifz ===== */
+.section-head{font-weight:800;color:var(--emerald);margin:16px 2px 10px;}
+.hifz-modes{display:flex;flex-direction:column;gap:11px;}
+.hz-card{background:var(--white);border-radius:20px;box-shadow:var(--shadow);padding:16px;
+  display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform .08s;}
+.hz-card:active{transform:scale(.98);}
+.hz-ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:26px;flex-shrink:0;}
+.hz-card.sabaq .hz-ic{background:#E6F3EF;}
+.hz-card.sabqi .hz-ic{background:#FFF1D6;}
+.hz-card.manzil .hz-ic{background:#F0E6FF;}
+.hz-t{font-weight:800;color:var(--ink);font-size:1.05rem;}
+.hz-s{font-size:.8rem;color:var(--ink-soft);font-weight:600;}
+.hifz-stat{background:linear-gradient(135deg,var(--emerald),var(--emerald-l));color:#fff;border-radius:20px;
+  padding:16px;margin-bottom:14px;display:flex;gap:10px;text-align:center;box-shadow:var(--shadow);}
+.hifz-stat div{flex:1;}
+.hifz-stat b{display:block;font-size:1.5rem;}
+.hifz-stat span{font-size:.72rem;opacity:.9;font-weight:700;}
+
+.mem-stage{margin-bottom:14px;}
+.mem-ayah{background:var(--white);border-radius:26px;box-shadow:var(--shadow);padding:26px 20px;
+  min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;text-align:center;}
+.mem-ar{font-family:'Scheherazade New',serif;font-size:2.1rem;direction:rtl;color:var(--ink);
+  line-height:2.2;transition:filter .25s, opacity .25s;}
+.mem-ar.hidden-text{filter:blur(11px);opacity:.45;}
+.mem-tap{color:var(--ink-soft);font-weight:700;font-size:.85rem;margin-top:14px;}
+.mem-controls{display:flex;gap:8px;margin-bottom:11px;}
+.mem-controls .rb{flex:1;}
+.mem-verdict{display:flex;gap:10px;margin-bottom:11px;}
+.mem-verdict .btn{font-size:.95rem;padding:14px 10px;}
+.mem-nav{display:flex;gap:10px;}
+.mem-nav .rb{flex:1;padding:13px;}
+.mem-ayah.known{border:3px solid var(--emerald-l);}
+
 @media(max-width:360px){
   .big-letter{font-size:7rem;}
   .brand{font-size:2.1rem;}
@@ -409,6 +443,7 @@ body{
         <div class="ti">📖</div><div class="tt">Qaida</div>
       </div>
       <div class="tile" onclick="openNazra()"><div class="ti">🕋</div><div class="tt">Quran Reading</div></div>
+      <div class="tile" onclick="openHifz()"><div class="ti">🧠</div><div class="tt">Hifz</div></div>
       <div class="tile" onclick="startGame()"><div class="ti">🎈</div><div class="tt">Games</div></div>
       <div class="tile locked"><div class="soon">soon</div><div class="ti">🤲</div><div class="tt">Duas &amp; Salah</div></div>
       <div class="tile locked"><div class="soon">soon</div><div class="ti">⭐</div><div class="tt">My Progress</div></div>
@@ -482,6 +517,64 @@ body{
     <div id="ayahList"><div class="loading">Loading… ⏳</div></div>
   </section>
 
+  <!-- ===================== HIFZ HUB ===================== -->
+  <section class="screen" id="hifz">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="go('menu')">‹</button>
+      <div class="center-title" style="margin:0;font-size:1.2rem">Hifz 🧠</div>
+    </div>
+    <div id="hifzStats"></div>
+    <div class="hifz-modes">
+      <div class="hz-card sabaq" onclick="pickHifzSurah('sabaq')">
+        <div class="hz-ic">🆕</div>
+        <div><div class="hz-t">Sabaq</div><div class="hz-s">Naya sabaq yaad karo</div></div>
+      </div>
+      <div class="hz-card sabqi" onclick="startReview('sabqi')">
+        <div class="hz-ic">🔁</div>
+        <div><div class="hz-t">Sabqi</div><div class="hz-s" id="sabqiCount">Haali revision</div></div>
+      </div>
+      <div class="hz-card manzil" onclick="startReview('manzil')">
+        <div class="hz-ic">📚</div>
+        <div><div class="hz-t">Manzil</div><div class="hz-s" id="manzilCount">Purani revision</div></div>
+      </div>
+    </div>
+    <div class="section-head" id="hifzListHead" style="display:none">Surah chuno</div>
+    <input class="search" id="hifzSearch" placeholder="Surah dhoondein…" oninput="renderHifzSurahs()" style="display:none"/>
+    <div id="hifzSurahList"></div>
+  </section>
+
+  <!-- ===================== HIFZ: MEMORIZE ===================== -->
+  <section class="screen" id="memorize">
+    <div class="topbar">
+      <button class="iconbtn" style="margin-inline-start:0" onclick="stopAudio();openHifz()">‹</button>
+      <div class="center-title" id="mTitle" style="margin:0;font-size:1.05rem">Hifz</div>
+      <span id="mCount" style="margin-inline-start:auto;font-weight:800;color:var(--emerald)"></span>
+    </div>
+
+    <div class="mem-stage">
+      <div class="mem-ayah" id="memAyah" onclick="toggleHide()">
+        <div class="mem-ar hidden-text" id="memAr">—</div>
+        <div class="mem-tap" id="memTap">👆 Tap karke dekho</div>
+      </div>
+    </div>
+
+    <div class="mem-controls">
+      <button class="rb" id="mHideBtn" onclick="toggleHide()">🙈 Hide</button>
+      <button class="rb" onclick="playMemAyah()">🔊 Suno</button>
+      <button class="rb" id="mRepBtn" onclick="cycleMemRepeat()">Repeat: 5x</button>
+    </div>
+
+    <div class="mem-verdict">
+      <button class="btn coral" style="flex:1" onclick="markAyah(false)">😕 Phir se</button>
+      <button class="btn" style="flex:1" onclick="markAyah(true)">✅ Yaad ho gayi</button>
+    </div>
+
+    <div class="mem-nav">
+      <button class="rb" onclick="memPrev()">‹ Back</button>
+      <button class="rb" onclick="memNext()">Next ›</button>
+    </div>
+  </section>
+
   <!-- ===================== GAME: Huroof Hunt ===================== -->
   <section class="screen" id="game">
     <div class="topbar">
@@ -508,7 +601,7 @@ body{
     <div class="reward-star">🌟</div>
     <div class="reward-title" id="rewardTitle">Shabash!</div>
     <div class="sub" id="rewardSub">You finished the lesson!</div>
-    <button class="btn gold" style="min-width:180px;margin-top:10px" onclick="openQaidaHub()">Back to Qaida 🏠</button>
+    <button class="btn gold" style="min-width:180px;margin-top:10px" id="rewardBackBtn" onclick="rewardBack()">Back 🏠</button>
   </section>
 
 </div>
@@ -837,8 +930,21 @@ function confirmDelete(){
 }
 /* ---- custom confirm (native confirm() is blocked in app webview) ---- */
 let _confirmCb=null;
-function askConfirm(msg, cb){
+function askConfirm(msg, cb, opt){
+  opt = opt||{};
   document.getElementById('confirmMsg').textContent = msg;
+  document.querySelector('.modal-emoji').textContent = opt.emoji || '🗑️';
+  const yes=document.getElementById('confirmYes');
+  const no=document.querySelector('.modal-btns .btn.ghost');
+  if(opt.info){                      // info popup: single OK button
+    yes.textContent='OK';
+    yes.classList.remove('coral'); yes.classList.add('gold');
+    no.style.display='none';
+  } else {                           // destructive confirm
+    yes.textContent='Delete';
+    yes.classList.remove('gold'); yes.classList.add('coral');
+    no.style.display='';
+  }
   _confirmCb = cb;
   document.getElementById('confirmModal').classList.add('show');
 }
@@ -1032,7 +1138,10 @@ function finishQuiz(){
   showReward("MashaAllah! 🌟","Score: "+quizState.score+" / "+quizState.items.length);
 }
 
-function showReward(title,sub){
+let _rewardBack='qaidaHub';
+function rewardBack(){ if(_rewardBack==='hifz') openHifz(); else if(_rewardBack==='menu') go('menu'); else openQaidaHub(); }
+function showReward(title,sub,back){
+  _rewardBack = back || 'qaidaHub';
   document.getElementById('rewardTitle').textContent=title;
   document.getElementById('rewardSub').textContent=sub;
   go('reward');
@@ -1242,16 +1351,18 @@ function playFrom(i){
   nz.playing=i; nz.left=nz.repeat;
   markPlaying(i);
   saveLastRead(i);
+  audioEl.onended=nazraEnded;          // (re)claim the handler — hifz may have changed it
   audioEl.src=a.audio;
   audioEl.play().catch(()=>{});
 }
-audioEl.onended=()=>{
+function nazraEnded(){
   if(nz.playing<0) return;
   nz.left--;
   if(nz.left>0){ audioEl.currentTime=0; audioEl.play().catch(()=>{}); return; }  // repeat same ayah
   if(nz.auto && nz.playing<nz.ayahs.length-1){ playFrom(nz.playing+1); }
   else{ stopAudio(); }
-};
+}
+audioEl.onended=nazraEnded;
 function markPlaying(i){
   document.querySelectorAll('.ayah').forEach(e=>e.classList.remove('playing'));
   const el=document.getElementById('ay'+i);
@@ -1278,6 +1389,164 @@ function saveLastRead(i){
   const p=currentProfile(); if(!p||!nz.surah) return;
   p.lastRead={surah:nz.surah.number,name:nz.surah.name,ayah:i};
   save();
+}
+
+/* ============================================================
+   6d. HIFZ MODE  (hide → recall → check → repeat)
+   Progress per profile: p.hifz = { "2:255": {known:bool, reps:n, last:ts} }
+   ============================================================ */
+let hz={ list:[], index:0, hidden:true, repeat:5, left:0, mode:'sabaq', surahName:'' };
+const DAY=86400000;
+
+function hifzData(){
+  const p=currentProfile(); if(!p) return {};
+  p.hifz=p.hifz||{}; return p.hifz;
+}
+function openHifz(){
+  stopAudio();
+  const H=hifzData();
+  const keys=Object.keys(H);
+  const known=keys.filter(k=>H[k].known);
+  const now=Date.now();
+  // Sabqi = known in last 7 days; Manzil = known older than 7 days
+  const sabqi=known.filter(k=> now-(H[k].last||0) <= 7*DAY );
+  const manzil=known.filter(k=> now-(H[k].last||0) > 7*DAY );
+  document.getElementById('hifzStats').innerHTML=
+    `<div class="hifz-stat">
+       <div><b>${known.length}</b><span>Ayat yaad</span></div>
+       <div><b>${sabqi.length}</b><span>Sabqi</span></div>
+       <div><b>${manzil.length}</b><span>Manzil</span></div>
+     </div>`;
+  document.getElementById('sabqiCount').textContent = sabqi.length? sabqi.length+' ayat revision ke liye' : 'Abhi kuch nahi';
+  document.getElementById('manzilCount').textContent = manzil.length? manzil.length+' ayat purani revision' : 'Abhi kuch nahi';
+  document.getElementById('hifzListHead').style.display='none';
+  document.getElementById('hifzSearch').style.display='none';
+  document.getElementById('hifzSurahList').innerHTML='';
+  go('hifz');
+}
+
+/* ---- Sabaq: pick a surah ---- */
+async function pickHifzSurah(){
+  document.getElementById('hifzListHead').style.display='';
+  document.getElementById('hifzSearch').style.display='';
+  if(!surahs.length){
+    const cached=cacheGet('surahs');
+    if(cached) surahs=cached;
+    else{
+      document.getElementById('hifzSurahList').innerHTML='<div class="loading">Loading… ⏳</div>';
+      try{ const r=await fetch(QAPI+'/surah'); surahs=(await r.json()).data; cacheSet('surahs',surahs); }
+      catch(e){ document.getElementById('hifzSurahList').innerHTML='<div class="loading">Internet chahiye 😕</div>'; return; }
+    }
+  }
+  renderHifzSurahs();
+}
+function renderHifzSurahs(){
+  const q=(document.getElementById('hifzSearch').value||'').trim().toLowerCase();
+  const wrap=document.getElementById('hifzSurahList');
+  // short surahs first — best for kids starting hifz
+  const list=surahs.filter(s=> !q || s.englishName.toLowerCase().includes(q) || String(s.number)===q)
+                   .sort((a,b)=> q? 0 : (a.numberOfAyahs-b.numberOfAyahs));
+  const H=hifzData();
+  wrap.innerHTML='';
+  list.forEach(s=>{
+    const done=Array.from({length:s.numberOfAyahs},(_,i)=>H[s.number+':'+(i+1)]).filter(x=>x&&x.known).length;
+    const d=document.createElement('div'); d.className='surah-row';
+    d.innerHTML=`<div class="s-no">${s.number}</div>
+      <div class="s-mid"><div class="s-name">${escapeHtml(s.englishName)}</div>
+        <div class="s-sub">${s.numberOfAyahs} ayah${done?` · ✅ ${done} yaad`:''}</div></div>
+      <div class="s-ar">${s.name}</div>`;
+    d.onclick=()=>startSabaq(s.number);
+    wrap.appendChild(d);
+  });
+}
+
+/* ---- start memorizing a surah ---- */
+async function startSabaq(n){
+  const key='s'+n+'.'+settings.reciter;
+  go('memorize');
+  document.getElementById('memAr').textContent='Loading… ⏳';
+  let data=cacheGet(key);
+  if(!data){
+    try{
+      const r=await fetch(QAPI+'/surah/'+n+'/editions/quran-uthmani,'+settings.reciter);
+      const j=await r.json(); const text=j.data[0], aud=j.data[1];
+      data={ number:text.number, name:text.name, englishName:text.englishName,
+             ayahs:text.ayahs.map((a,i)=>({n:a.numberInSurah,text:a.text,audio:(aud.ayahs[i]||{}).audio})) };
+      cacheSet(key,data);
+    }catch(e){ document.getElementById('memAr').textContent='Load nahi hua 😕'; return; }
+  }
+  hz.mode='sabaq'; hz.surahName=data.englishName;
+  hz.list=data.ayahs.map(a=>({key:n+':'+a.n, text:a.text, audio:a.audio, label:data.englishName+' '+a.n}));
+  hz.index=0; hz.hidden=true;
+  renderMem();
+}
+
+/* ---- Sabqi / Manzil review ---- */
+function startReview(mode){
+  const H=hifzData(); const now=Date.now();
+  const keys=Object.keys(H).filter(k=>H[k].known).filter(k=>{
+    const age=now-(H[k].last||0);
+    return mode==='sabqi' ? age<=7*DAY : age>7*DAY;
+  });
+  if(!keys.length){ alertBox(mode==='sabqi'?'Sabqi khali hai':'Manzil khali hai','Pehle Sabaq se kuch ayat yaad karein.'); return; }
+  hz.mode=mode; hz.surahName=(mode==='sabqi'?'Sabqi 🔁':'Manzil 📚');
+  hz.list=keys.map(k=>({key:k, text:H[k].text||'', audio:H[k].audio||'', label:(H[k].label||k)}));
+  hz.index=0; hz.hidden=true;
+  go('memorize'); renderMem();
+}
+function alertBox(t,s){ askConfirm(t+'\n'+s, null, {info:true, emoji:'🧠'}); }
+
+/* ---- memorize UI ---- */
+function renderMem(){
+  const a=hz.list[hz.index]; if(!a) return;
+  const H=hifzData();
+  document.getElementById('mTitle').textContent = hz.surahName;
+  document.getElementById('mCount').textContent = (hz.index+1)+' / '+hz.list.length;
+  const ar=document.getElementById('memAr');
+  ar.textContent = a.text || '—';
+  ar.classList.toggle('hidden-text', hz.hidden);
+  document.getElementById('memTap').textContent = hz.hidden ? '👆 Zubani parho, phir tap karke check karo' : '✓ Ab dekh kar milao';
+  document.getElementById('mHideBtn').textContent = hz.hidden ? '👁 Dekho' : '🙈 Hide';
+  document.getElementById('memAyah').classList.toggle('known', !!(H[a.key]&&H[a.key].known));
+  document.getElementById('mRepBtn').textContent = 'Repeat: '+hz.repeat+'x';
+}
+function toggleHide(){ hz.hidden=!hz.hidden; renderMem(); }
+function cycleMemRepeat(){ hz.repeat = hz.repeat===5?10 : hz.repeat===10?20 : 5; renderMem(); }
+
+function playMemAyah(){
+  const a=hz.list[hz.index]; if(!a||!a.audio) return;
+  hz.left=hz.repeat;
+  audioEl.onended=()=>{
+    hz.left--;
+    if(hz.left>0){ audioEl.currentTime=0; audioEl.play().catch(()=>{}); }
+  };
+  audioEl.src=a.audio;
+  audioEl.play().catch(()=>{});
+}
+function markAyah(known){
+  const a=hz.list[hz.index]; if(!a) return;
+  const p=currentProfile(); if(!p) return;
+  p.hifz=p.hifz||{};
+  const rec=p.hifz[a.key]||{reps:0};
+  rec.known=known; rec.reps=(rec.reps||0)+1; rec.last=Date.now();
+  rec.text=a.text; rec.audio=a.audio; rec.label=a.label;
+  p.hifz[a.key]=rec; save();
+  if(known) confetti(false);
+  memNext();
+}
+function memNext(){
+  stopAudio();
+  if(hz.index < hz.list.length-1){ hz.index++; hz.hidden=true; renderMem(); }
+  else finishHifz();
+}
+function memPrev(){
+  stopAudio();
+  if(hz.index>0){ hz.index--; hz.hidden=true; renderMem(); }
+}
+function finishHifz(){
+  const H=hifzData();
+  const done=hz.list.filter(a=>H[a.key]&&H[a.key].known).length;
+  showReward('MashaAllah! 🌟', done+' / '+hz.list.length+' ayat yaad', 'hifz');
 }
 
 /* ============================================================
